@@ -41,5 +41,4 @@ ln -s $HOME/dotfiles/tmux.osx.conf $HOME/.tmux.conf
 
 # setup git and development enviroment
 ln -s $HOME/dotfiles/gitconfig $HOME/.gitconfig
-ln -s $HOME/dotfiles/Brewfile $HOME/Brewfile
 ln -s $HOME/dotfiles/rspec $HOME/.rspec
