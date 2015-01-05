@@ -1,0 +1,129 @@
+[user]
+	name = Bao Nguyen
+	email = bao@fastly.com
+[branch]
+	autosetuprebase = always
+[branch "master"]
+	rebase = true
+[fetch]
+	recurseSubmodules = true
+[push]
+	default = tracking
+
+[core]
+ whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+ editor = vim
+[color "diff"]
+ whitespace = red reverse
+[apply]
+ whitespace = fix
+[commit]
+ whitespace = fix
+
+[color]
+  branch = auto
+  diff = auto
+  status = auto
+  interactive = auto
+  ui = true
+  pager = true
+
+[pack]
+  threads = 0
+
+[rename]
+  limit = 0
+
+[core]
+  pager = less -FRSX
+	excludesfile = /Users/bao/.gitignore
+  #editor = subl -n -w
+	editor = vim
+
+[giggle]
+  main-window-maximized = true
+  main-window-view = HistoryView
+
+[sendemail]
+  smtpuser =
+  smtppass =
+  smtpserver =
+  smtpserverport =
+  smtpencryption = tls
+  suppresscc = self
+  signedoffbycc = false
+  chainreplyto = false
+
+[alias]
+  a = add
+  t = tag
+  au = add -u .
+  ap = add -p
+  # Inside the braces you specify the argument index ($0 returns the whole script) followed by a dash and then the default value.
+  bclean = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs -r git branch -d; }; f"
+  bdone = "!f() { git checkout ${1-master} && git up && git bclean ${1-master}; }; f"
+  br = branch -v
+  bl = blame
+  cl = clean
+  clf = clean --force
+  sh = show
+  sb = show-branch
+  ds = diff --stat
+  ls = ls-files
+  lo = log
+  st = status
+  co = checkout
+  cob = checkout -b
+  cp = cherry-pick
+  ci = commit
+  cm = !git add -A && git commit -m
+  df = diff
+  rb = rebase
+  rbc = rebase --continue
+  rbs = rebase --skip
+  rbi = rebase --interactive
+  me = merge
+  rs = remote show
+  sb = show-branch
+  pu = pull
+  pus = submodule foreach git pull origin master
+  pur = pull --recurse-submodules
+  pt = push --tags
+  w = whatchanged
+  dfs = diff --staged
+  sts = status -s
+  rl = reflog
+  ref = reflog
+  rst = reset
+  rt = remote
+  save = !git add -A && git commit -m 'SAVEPOINT'
+  sm = submodule
+  sms = submodule status
+  smi = submodule init
+  smu = submodule update
+  smf = submodule foreach
+  rup = remote update
+  rpr = remote prune
+  cia = commit -a
+  com = checkout master
+  detach = checkout HEAD^0
+  info = config --list
+  summary = log --oneline
+  rank = shortlog -sn --no-merges
+  tree = log --graph --oneline --decorate
+  pom = push origin master
+  pob = !sh -c 'git push origin $(git branch -l 2> /dev/null | sed -e \"/^[^*]/d\" -e \"s/* \\(.*\\)/\\1/\")'
+  amend = commit --amend
+  last = log --oneline -10
+  review = log --stat=160,180 -p -w --patience --reverse -M -C -C -c
+  undo = undo = reset HEAD~1 --mixed
+  up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+  wip = !git add -u && git commit -m "WIP"
+  wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
+
+
+
+[credential]
+	helper = osxkeychain
+[github]
+	user = sysbot
