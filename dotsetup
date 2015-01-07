@@ -4,7 +4,7 @@
 
 DOTDIR=$HOME/dotfiles
 
-if [ -z DOTDIR ]; then
+if [ -d DOTDIR ]; then
   ln -s "$DOTDIR/prezto" $HOME/.zprezto
   FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenw)
   for i in $FILES; do
@@ -43,4 +43,4 @@ if [ -z DOTDIR ]; then
   ln -s $DOTDIR/gitconfig $HOME/.gitconfig
   ln -s $DOTDIR/rspec $HOME/.rspec
   ln -s $DOTDIR/tigrc $HOME/.tigrc
-done
+fi
