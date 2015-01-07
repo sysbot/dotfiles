@@ -1,11 +1,17 @@
 bind diff r !open http://location/%(commit)
-
 bind generic + !git commit --amend
-
 bind generic 9 !@sh -c "echo -n %(commit) | xclip -selection c"
-
 bind generic T !git notes edit %(commit)
-
 bind generic I !git add -i %(file)
-
 bind refs 3 !git rebase -i %(branch)
+bind main R             refresh
+bind main <Ctrl-f>      scroll-page-down
+bind diff <Ctrl-f>      scroll-page-down
+bind main <Ctrl-b>      scroll-page-up
+bind diff <Ctrl-b>      scroll-page-up
+bind main <Esc>o        options
+bind main I :toggle id                          # Show/hide the ID column
+bind diff D :toggle diff-options --minimal      # Use minimal diff algorithm
+bind diff [ :toggle diff-context -3             # Decrease context (-U arg)
+bind diff ] :toggle diff-context +3             # Increase context
+bind generic V :toggle split-view-height -10%   # Decrease split height
