@@ -4,13 +4,30 @@
 
 DOTDIR=$HOME/dotfiles
 
-if [ -d $DOTDIR ]; then
+if [ $1 == "full" ]
+  prezto
+  vim
+  weechat
+  mutt
+  ssh
+  chef
+  tmux
+  dev
+else
+  prezto
+  vim
+  dev
+fi
+
+prezto() {
   ln -s "$DOTDIR/prezto" $HOME/.zprezto
-  FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenw)
+  FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenv)
   for i in $FILES; do
     ln -s "$HOME/.zprezto/runcoms/$i" "$HOME/.$i"
   done
+}
 
+vim() {
   # setup vim
   FILES=(vimrc)
   ln -s "$DOTDIR/dotvim" $HOME/.vim
@@ -19,28 +36,39 @@ if [ -d $DOTDIR ]; then
   done
   echo "Launch VIM and don't forget install plugins"
   echo "   :PluginInstall"
+}
 
+weechat(){
   # setup weechat
   ln -s "$DOTDIR/dotweechat" $HOME/.weechat
+}
 
+mutt(){
   # setup mutt
   ln -s "$DOTDIR/dotmutt" $HOME/.mutt
   FILES=(mailcap msmtprc muttrc offlineimaprc urlview)
   for i in $FILES; do
     ln -s "$HOME/.mutt/$i" "$HOME/.$i"
   done
+}
 
+ssh(){
   # setup ssh
   ln -s "$DOTDIR/dotssh" $HOME/.ssh
+}
 
-  # setup chef
+chef(){
   ln -s "$DOTDIR/dotchef" $HOME/.chef
+}
 
+tmux(){
   # setup tmux
   ln -s $DOTDIR/tmux.osx.conf $HOME/.tmux.conf
+}
 
+dev() {
   # setup git and development enviroment
   ln -s $DOTDIR/gitconfig $HOME/.gitconfig
   ln -s $DOTDIR/rspec $HOME/.rspec
   ln -s $DOTDIR/tigrc $HOME/.tigrc
-fi
+}
