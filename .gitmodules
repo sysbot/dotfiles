@@ -1,0 +1,18 @@
+[submodule "prezto"]
+	path = prezto
+	url = git@github.com:sysbot/prezto.git
+[submodule "dotvim"]
+	path = dotvim
+	url = git@github.com:sysbot/dotvim
+[submodule "dotweechat"]
+	path = dotweechat
+	url = git@github.com:sysbot/dotweechat
+[submodule "dotmutt"]
+	path = dotmutt
+	url = git@github.com:sysbot/dotmutt
+[submodule "dotchef"]
+	path = dotchef
+	url = git@github.com:fastly/bao-dotchef.git
+[submodule "dotssh"]
+	path = dotssh
+	url = git@github.com:fastly/bao-dotssh.git

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Setup home!
+
+DOTDIR=$HOME/dotfiles
+
+if [ -z DOTDIR ]; then
+  ln -s "$DOTDIR/prezto" $HOME/.zprezto
+  FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenw)
+  for i in $FILES; do
+    ln -s "$HOME/.zprezto/$i" "$HOME/.$i"
+  done
+
+  # setup vim
+  FILES=(vimrc)
+  ln -s "$DOTDIR/dotvim" $HOME/.vim
+  for i in $FILES; do
+    ln -s "$HOME/.vim/$i" "$HOME/.$i"
+  done
+  echo "Launch VIM and don't forget install plugins"
+  echo "   :PluginInstall"
+
+  # setup weechat
+  ln -s "$DOTDIR/dotweechat" $HOME/.weechat
+
+  # setup mutt
+  ln -s "$DOTDIR/dotmutt" $HOME/.mutt
+  FILES=(mailcap msmtprc muttrc offlineimaprc urlview)
+  for i in $FILES; do
+    ln -s "$HOME/.mutt/$i" "$HOME/.$i"
+  done
+
+  # setup ssh
+  ln -s "$DOTDIR/dotssh" $HOME/.ssh
+
+  # setup chef
+  ln -s "$DOTDIR/dotchef" $HOME/.chef
+
+  # setup tmux
+  ln -s $DOTDIR/tmux.osx.conf $HOME/.tmux.conf
+
+  # setup git and development enviroment
+  ln -s $DOTDIR/gitconfig $HOME/.gitconfig
+  ln -s $DOTDIR/rspec $HOME/.rspec
+  ln -s $DOTDIR/tigrc $HOME/.tigrc
+done

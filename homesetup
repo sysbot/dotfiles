@@ -1,0 +1,13 @@
+
+# we will need homebrew and git
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew install git chruby
+
+git clone --recursive git@github.com:sysbot/dotfiles "$HOME/dotfiles"
+
+# setup the dot file
+chmod a+x ./dotfiles/dotsetup
+./dotfiles/dotsetup
+chmod a+x ./dotfiles/gpg-setup
+./dotfiles/gpg-setup
