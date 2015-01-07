@@ -4,11 +4,11 @@
 
 DOTDIR=$HOME/dotfiles
 
-if [ -d DOTDIR ]; then
+if [ -d $DOTDIR ]; then
   ln -s "$DOTDIR/prezto" $HOME/.zprezto
   FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenw)
   for i in $FILES; do
-    ln -s "$HOME/.zprezto/$i" "$HOME/.$i"
+    ln -s "$HOME/.zprezto/runcoms/$i" "$HOME/.$i"
   done
 
   # setup vim
