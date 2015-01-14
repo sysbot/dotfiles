@@ -8,17 +8,17 @@
 [fetch]
 	recurseSubmodules = true
 [push]
-	default = tracking
+	default = upstream
 
 [core]
- whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
- editor = vim
+  whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+  editor = vim
 [color "diff"]
- whitespace = red reverse
+  whitespace = red reverse
 [apply]
- whitespace = fix
+  whitespace = fix
 [commit]
- whitespace = fix
+  whitespace = fix
 
 [color]
   branch = auto
@@ -73,11 +73,12 @@
   lo = log
   st = status
   co = checkout
-  cob = checkout -b
+  nb = checkout -b
   cp = cherry-pick
   ci = commit
-  cm = !git add -A && git commit -m
-  df = diff
+  c = commit -m
+  ca = commit -am
+  d = diff
   rb = rebase
   rbc = rebase --continue
   rbs = rebase --skip
@@ -90,12 +91,12 @@
   pur = pull --recurse-submodules
   pt = push --tags
   w = whatchanged
-  dfs = diff --staged
+  dc = diff --staged
   sts = status -s
   rl = reflog
   ref = reflog
   rst = reset
-  rt = remote
+  r = remote
   save = !git add -A && git commit -m 'SAVEPOINT'
   sm = submodule
   sms = submodule status
@@ -116,14 +117,28 @@
   amend = commit --amend
   last = log --oneline -10
   review = log --stat=160,180 -p -w --patience --reverse -M -C -C -c
-  undo = undo = reset HEAD~1 --mixed
+  undo = reset HEAD~1 --mixed
   up = !git pull --rebase --prune $@ && git submodule update --init --recursive
   wip = !git add -u && git commit -m "WIP"
   wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
 
-
+  # take wholesale, ours or theirs
+  # http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
+  ours   = "!f() { git checkout --ours $@ && git add $@; }; f"
+  theirs = "!f() { git checkout --theirs $@ && git add $@; }; f"
+  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+  snapshots = !git stash list --grep snapshot
 
 [credential]
 	helper = osxkeychain
 [github]
 	user = sysbot
+[diff]
+  # Git diff will use (i)ndex, (w)ork tree, (c)ommit and (o)bject
+  # instead of a/b/c/d as prefixes for patches
+  mnemonicprefix = true
+  algorithm = patience
+[rerere]
+  # Remember my merges
+  # http://gitfu.wordpress.com/2008/04/20/git-rerere-rereremember-what-you-did-last-time/
+  enabled = true
