@@ -3,5 +3,9 @@ Peronal dotfiles
 # Setup
 
 ```
-  bash homesetup
+  # Full installation
+  bash dotsetup full
+
+  # Default just minimal
+  bash dotsetup
 ```
