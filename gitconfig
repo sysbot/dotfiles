@@ -117,6 +117,7 @@
   detach = checkout HEAD^0
   info = config --list
   summary = log --oneline
+  sum = log --oneline
   rank = shortlog -sn --no-merges
   snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
   snapshots = !git stash list --grep snapshot
