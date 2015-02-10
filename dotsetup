@@ -4,21 +4,6 @@
 
 DOTDIR=$HOME/dotfiles
 
-if [ $1 == "full" ]
-  prezto
-  vim
-  weechat
-  mutt
-  ssh
-  chef
-  tmux
-  dev
-else
-  prezto
-  vim
-  dev
-fi
-
 prezto() {
   ln -s "$DOTDIR/prezto" $HOME/.zprezto
   FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenv)
@@ -72,3 +57,19 @@ dev() {
   ln -s $DOTDIR/rspec $HOME/.rspec
   ln -s $DOTDIR/tigrc $HOME/.tigrc
 }
+
+if [ $1 = "full" ]
+then
+  prezto
+  vim
+  weechat
+  mutt
+  ssh
+  chef
+  tmux
+  dev
+else
+  prezto
+  vim
+  dev
+fi
