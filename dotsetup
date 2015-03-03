@@ -58,7 +58,7 @@ dev() {
   ln -s $DOTDIR/tigrc $HOME/.tigrc
 }
 
-if [ $1 = "full" ]
+if [ $1 -eq "full" ]
 then
   prezto
   vim
