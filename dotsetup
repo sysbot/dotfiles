@@ -56,6 +56,11 @@ dev() {
   ln -s $DOTDIR/gitconfig $HOME/.gitconfig
   ln -s $DOTDIR/rspec $HOME/.rspec
   ln -s $DOTDIR/tigrc $HOME/.tigrc
+  ln -s $DOTDIR/gist $HOME/.gist
+
+  # hub
+  mkdir -p ~/.config
+  ln -s $DOTDIR/hub $HOME/.config/hub
 }
 
 if [ $1 -eq "full" ]
