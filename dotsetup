@@ -60,7 +60,8 @@ dev() {
 
   # hub
   mkdir -p ~/.config
-  ln -s $DOTDIR/hub $HOME/.config/hub
+  cd ~/.config
+  ln -s $HOME/$DOTDIR/hub $HOME/.config/hub
 }
 
 if [ $1 -eq "full" ]

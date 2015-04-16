@@ -54,6 +54,7 @@ install unar
 install wget
 install chruby
 install ruby-install
+install autoenv
 # }}}
 # language runtimes {{{
 install go
