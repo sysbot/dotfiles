@@ -82,6 +82,7 @@
   co = checkout
   nb = checkout -b
   cp = cherry-pick
+  churn = !git log --all -M -C --name-only --format='format:' "$@" | sort | grep -v '^$' | uniq -c | sort | awk 'BEGIN {print "count\tfile"} {print $1 "\t" $2}' | sort -g
   ci = commit
   c = commit -m
   ca = commit -am
@@ -113,13 +114,13 @@
   rup = remote update
   rpr = remote prune
   cia = commit -a
-  com = checkout master
+  com = !git checkout master && git pull
   detach = checkout HEAD^0
   info = config --list
-  summary = log --oneline
+  summary = log --pretty=oneline
   sum = log --oneline
   rank = shortlog -sn --no-merges
-  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+  snapshot = !git stash save "snapshot: $(date)" && git stash apply 'stash@{0}'
   snapshots = !git stash list --grep snapshot
   tree = log --graph --oneline --decorate
   t = tag
@@ -131,12 +132,15 @@
   up = !git pull --rebase --prune $@ && git submodule update --init --recursive
   wip = !git add -u && git commit -m "WIP"
   wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
+  tc = !sh -c 'git rev-list $0 | head -n 1'
 
   # take wholesale, ours or theirs
   # http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
   ours   = "!f() { git checkout --ours $@ && git add $@; }; f"
   theirs = "!f() { git checkout --theirs $@ && git add $@; }; f"
 
+  # history
+  hist = log --color --pretty=format:\"%C(yellow)%h%C(reset) %s%C(bold red)%d%C(reset) %C(green)%ad%C(reset) %C(blue)[%an]%C(reset)\" --relative-date --decorate
   # subtree merge
   # https://help.github.com/articles/about-git-subtree-merges/
   # TODO: convert these into usable git shortcut
@@ -161,3 +165,7 @@
   # Remember my merges
   # http://gitfu.wordpress.com/2008/04/20/git-rerere-rereremember-what-you-did-last-time/
   enabled = true
+[filter "lfs"]
+	clean = git lfs clean %f
+	smudge = git lfs smudge %f
+	required = true

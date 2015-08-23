@@ -9,19 +9,22 @@ tap caskroom/homebrew-fonts || true
 update
 
 # essential tools {{{
-install git --with-pcre --with-brewed-openssl
 install reattach-to-user-namespace --HEAD --wrap-launchctl --wrap-pbcopy-and-pbpaste
 install the_silver_searcher
 install tmux
 install zsh --disable-etcdir
-install vim --override-system-vi
+install fish
+install mvim --with-lua --override-system-vi --HEAD
+install coreutils
 install git-crypt
+install weechat --with-python --with-perl --with-ruby --with-curl --with-lua --with-aspel
+install android-sdk
 # }}}
 # networking tools {{{
 install nmap
 cask install wireshark
 cask install yed
-}}}
+#}}}
 
 # mail tools {{{
 install msmtp
@@ -32,8 +35,9 @@ install urlview
 install w3m
 install links
 install elinks
- }}}
+# }}}
 # development tools {{{
+install git --with-pcre --with-brewed-openssl
 install tig
 install bfg
 install appledoc
@@ -53,8 +57,11 @@ install terminal-notifier
 install unar
 install wget
 install chruby
+install chruby-fish
 install ruby-install
 install autoenv
+install ack
+install ag
 # }}}
 # language runtimes {{{
 install go
@@ -78,12 +85,11 @@ cask install appcleaner
 cask install bartender
 cask install controlplane
 cask install dropbox
-cask install iterm2-beta
+cask install iterm2
 cask install keyremap4macbook
 cask install kobito
 cask install lastfm
-cask install limechat
-cask install slate
+cask install spotify
 cask install skype
 cask install smcfancontrol
 cask install testflight
@@ -93,10 +99,6 @@ cask install gpgtools
 
 # Browsers {{{
 cask install google-chrome-canary
-cask install firefox
-cask install firefox-aurora
-cask install opera
-cask install opera-next
 # }}}
 
 cask alfred link # Enable Alfred to find applications managed by cask
