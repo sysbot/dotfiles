@@ -13,9 +13,9 @@
 [submodule "dotchef"]
 	path = dotchef
 	url = git@github.com:fastly/bao-dotchef.git
-[submodule "dotssh"]
-	path = dotssh
-	url = git@github.com:fastly/bao-dotssh.git
 [submodule "zgen"]
 	path = zgen
 	url = git@github.com:tarjoilija/zgen.git
+[submodule "dotssh"]
+	path = dotssh
+	url = git@github.com:sysbot/dotssh.git
