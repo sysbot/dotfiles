@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Setup home!
-
 DOTDIR=$HOME/dotfiles
 
 prezto() {
@@ -14,7 +12,7 @@ prezto() {
 
 vim() {
   # setup vim
-  FILES=(vimrc)
+  FILES=(vimrc vimrc.min)
   ln -s "$DOTDIR/dotvim" $HOME/.vim
   for i in $FILES; do
     ln -s "$HOME/.vim/$i" "$HOME/.$i"
@@ -64,6 +62,7 @@ dev() {
   ln -s $HOME/$DOTDIR/hub $HOME/.config/hub
 }
 
+
 if [ $1 -eq "full" ]
 then
   prezto
@@ -75,7 +74,14 @@ then
   tmux
   dev
 else
-  prezto
-  vim
-  dev
+  if [ "$(uname -s)" = 'Darwin' ] && [ -z "$BREW_LOCATION" ]; then
+    prezto
+    tmux 
+    vim
+    dev
+  else
+    tmux 
+    vim
+    dev
+  fi
 fi

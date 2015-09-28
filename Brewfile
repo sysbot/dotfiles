@@ -13,10 +13,15 @@ install reattach-to-user-namespace --HEAD --wrap-launchctl --wrap-pbcopy-and-pbp
 install the_silver_searcher
 install tmux
 install zsh --disable-etcdir
-install fish
 install mvim --with-lua --override-system-vi --HEAD
-install coreutils
-install git-crypt
+install ceoreutils --with-default-names
+install findutils --with-default-names
+install gnu-indent --with-default-names
+install gnu-sed --with-default-names
+install gnutls --with-default-names
+install grep --with-default-names
+install gnu-tar --with-default-names
+install gawkinstall git-crypt
 install weechat --with-python --with-perl --with-ruby --with-curl --with-lua --with-aspel
 install android-sdk
 # }}}
@@ -42,7 +47,6 @@ install tig
 install bfg
 install appledoc
 install autossh
-install coreutils
 install ctags
 install curl-ca-bundle
 install direnv
@@ -57,7 +61,6 @@ install terminal-notifier
 install unar
 install wget
 install chruby
-install chruby-fish
 install ruby-install
 install autoenv
 install ack

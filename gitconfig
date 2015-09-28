@@ -16,7 +16,7 @@
 
 [core]
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
-  editor = vim
+  editor = mvim  -v 
 
 [color "diff"]
   whitespace = red reverse
@@ -45,7 +45,7 @@
   pager = less -FRSX
 	excludesfile = /Users/bao/.gitignore
   #editor = subl -n -w
-	editor = vim
+	editor = mvim -v
 
 [giggle]
   main-window-maximized = true
