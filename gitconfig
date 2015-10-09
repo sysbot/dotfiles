@@ -140,7 +140,7 @@
   theirs = "!f() { git checkout --theirs $@ && git add $@; }; f"
 
   # history
-  hist = log --color --pretty=format:\"%C(yellow)%h%C(reset) %s%C(bold red)%d%C(reset) %C(green)%ad%C(reset) %C(blue)[%an]%C(reset)\" --relative-date --decorate
+  hist = log --color --pretty=format:\"%C(yellow)%h%C(reset) %C(blue)[%an]%C(reset) %s%C(bold red)%d%C(reset) %C(green)%ad%C(reset)\" --relative-date --decorate
   # subtree merge
   # https://help.github.com/articles/about-git-subtree-merges/
   # TODO: convert these into usable git shortcut

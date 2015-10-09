@@ -65,6 +65,7 @@ install ruby-install
 install autoenv
 install ack
 install ag
+install source-highlight
 # }}}
 # language runtimes {{{
 install go

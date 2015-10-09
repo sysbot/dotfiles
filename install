@@ -2,86 +2,159 @@
 
 DOTDIR=$HOME/dotfiles
 
+CLEAN=0
+FULL=(prezto vim weechat mutt ssh chef tmux dev)
+MAC_MIN=(prezto tmux_macosx vim dev minimal)
+MIN=(prezto tmux_linux vim dev minimal)
+
 prezto() {
   ln -s "$DOTDIR/prezto" $HOME/.zprezto
+
   FILES=(zlogout zlogin zprofile zshrc zpreztorc zshenv)
-  for i in $FILES; do
+  for i in ${FILES[@]}; do
     ln -s "$HOME/.zprezto/runcoms/$i" "$HOME/.$i"
+    if [ $CLEAN == 1 ]; then
+      rm -f "$HOME/.$i"
+    fi
   done
+
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.zprezto"
+  fi
 }
 
 vim() {
   # setup vim
   FILES=(vimrc vimrc.min)
   ln -s "$DOTDIR/dotvim" $HOME/.vim
-  for i in $FILES; do
+  for i in ${FILES[@]}; do
     ln -s "$HOME/.vim/$i" "$HOME/.$i"
+    if [ $CLEAN == 1 ]; then
+      rm -f "$HOME/.$i"
+    fi
   done
-  echo "Launch VIM and don't forget install plugins"
-  echo "   :PluginInstall"
+
+  if [ $CLEAN == 1 ]; then
+    echo "Vim removed"
+  else
+    echo "Launch VIM and don't forget install plugins"
+    echo "   :PluginInstall"
+  fi
 }
 
 weechat(){
   # setup weechat
   ln -s "$DOTDIR/dotweechat" $HOME/.weechat
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.weechat"
+  fi
 }
 
 mutt(){
   # setup mutt
   ln -s "$DOTDIR/dotmutt" $HOME/.mutt
   FILES=(mailcap msmtprc muttrc offlineimaprc urlview)
-  for i in $FILES; do
+  for i in ${FILES[@]}; do
     ln -s "$HOME/.mutt/$i" "$HOME/.$i"
+    if [ $CLEAN == 1 ]; then
+      rm -f "$HOME/.$i"
+    fi
   done
+
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.mutt"
+  fi
 }
 
 ssh(){
   # setup ssh
   ln -s "$DOTDIR/dotssh" $HOME/.ssh
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.ssh"
+  fi
 }
 
 chef(){
   ln -s "$DOTDIR/dotchef" $HOME/.chef
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.chef"
+  fi
 }
 
-tmux(){
+tmux_macosx(){
   # setup tmux
   ln -s $DOTDIR/tmux.osx.conf $HOME/.tmux.conf
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.tmux.conf"
+  fi
+}
+
+tmux_linux(){
+  # setup tmux
+  ln -s $DOTDIR/tmux.linux.conf $HOME/.tmux.conf
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.tmux.conf"
+  fi
 }
 
 dev() {
   # setup git and development enviroment
-  ln -s $DOTDIR/gitconfig $HOME/.gitconfig
-  ln -s $DOTDIR/rspec $HOME/.rspec
-  ln -s $DOTDIR/tigrc $HOME/.tigrc
-  ln -s $DOTDIR/gist $HOME/.gist
+  FILES=(gitconfig rspec tigrc gist)
+  for i in ${FILES[@]}; do
+    ln -s "$DOTDIR/$i" "$HOME/.$i"
+    if [ $CLEAN == 1 ]; then
+      rm -f "$HOME/.$i"
+    fi
+  done
 
   # hub
   mkdir -p ~/.config
-  cd ~/.config
+
   ln -s $HOME/$DOTDIR/hub $HOME/.config/hub
+  if [ $CLEAN == 1 ]; then
+    rm -f $HOME/.config/hub
+  fi
 }
 
+minimal(){
+  # gate for minimal install
+  touch $HOME/.minimal_shell
+  if [ $CLEAN == 1 ]; then
+    rm -f "$HOME/.minimal_shell"
+  fi
+}
 
-if [ $1 -eq "full" ]
-then
-  prezto
-  vim
-  weechat
-  mutt
-  ssh
-  chef
-  tmux
-  dev
+runner(){
+  name=$1[@]
+  prompt=$2
+  a=("${!name}")
+
+  for i in "${a[@]}" ; do
+    if [ $prompt ]; then
+      echo "do you wish to remove $i?"
+      select yn in "yes" "no"; do
+          case $yn in
+              yes ) $i;;
+              no ) exit;;
+          esac
+      done
+    else
+      $i
+    fi
+  done
+}
+
+if [[ $1 == "full" ]]; then
+  runner FULL
 else
   if [ "$(uname -s)" = 'Darwin' ] && [ -z "$BREW_LOCATION" ]; then
-    prezto
-    tmux 
-    vim
-    dev
+    runner MAC_MIN
   else
-    tmux 
-    vim
-    dev
+    runner MIN
   fi
+fi
+
+if [[ $1 == "clean" ]]; then
+  CLEAN=1
+  runner FULL $CLEAN
 fi
