@@ -1,0 +1,14 @@
+windows:
+  - name: dev
+    root: /Users/bao/dev/goto
+    layout: main-vertical
+    panes:
+      - commands:
+        - watch -t go test
+        focus: true
+      - commands:
+        - ls
+      - commands:
+        - git checkout master
+        - git status
+        - vim main.go
