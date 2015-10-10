@@ -15,6 +15,4 @@ else
   git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew
 fi
 
-git clone --recursive git@github.com:sysbot/dotfiles "$HOME/dotfiles"
-
-brew install git chruby hub
+brew install tree git chruby hub
