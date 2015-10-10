@@ -1,0 +1,18 @@
+windows:
+  - name: rickshaw 
+    root: /Users/bao/fastly/go-workspace/src/github.com/fastly/rickshaw
+    layout: main-vertical
+    panes:
+      - commands:
+        - git checkout master
+        - git pull
+        - git status
+        - vim cmd/rickshaw/main.go cmd/rickshaw/main_test.go lib/eapi.go lib/eapi_test.go
+        focus: true
+      - commands:
+        - ls
+        - vagrant destroy -f
+        - vagrant up
+      - commands:
+        - cd lib
+        - watch -t go test

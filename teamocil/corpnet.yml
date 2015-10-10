@@ -1,0 +1,15 @@
+windows:
+  - name: corpnet
+    root: ~/fastly/corpnet
+    layout: main-vertical
+    panes:
+      - commands:
+        - git checkout master
+        - git pull
+        - git status
+        - vim core* edge* README* fw*
+        focus: true
+      - commands:
+        - e2
+      - commands:
+        - core1

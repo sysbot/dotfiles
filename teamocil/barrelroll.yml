@@ -1,0 +1,10 @@
+windows:
+  - name: barrelroll
+    root: /Users/bao
+    layout: even-horizontal
+    panes:
+      - commands:
+        - sjc
+        focus: true
+      - commands:
+        - sjc

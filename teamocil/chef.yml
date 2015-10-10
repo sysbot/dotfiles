@@ -1,0 +1,13 @@
+windows:
+  - name: chef
+    root: ~/fastly/Chef
+    layout: even-horizontal
+    panes:
+      - commands:
+        - git checkout master
+        - git pull
+        - git status
+        focus: true
+      - commands:
+        - cd cookbooks
+        - ls -ltra
