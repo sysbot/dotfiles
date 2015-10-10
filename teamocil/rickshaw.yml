@@ -4,8 +4,7 @@ windows:
     layout: main-vertical
     panes:
       - commands:
-        - git checkout master
-        - git pull
+        - git checkout bao/conf
         - git status
         - vim cmd/rickshaw/main.go cmd/rickshaw/main_test.go lib/eapi.go lib/eapi_test.go
         focus: true
