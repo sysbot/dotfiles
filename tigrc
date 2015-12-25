@@ -1,4 +1,4 @@
-bind diff r !open http://location/%(commit)
+bind diff r !open https://github.com/fastly/Chef/commit/%(commit)
 bind generic + !git commit --amend
 bind generic 9 !@sh -c "echo %(commit) | xclip -selection c"
 bind generic T !git notes edit %(commit)

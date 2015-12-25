@@ -1,0 +1,15 @@
+windows:
+  - name: goten
+    root: /Users/bao/fastly/go-workspace/src/github.com/fastly/goten
+    layout: main-vertical
+    panes:
+      - commands:
+        - cd cmd/goten
+        - git status
+        - vim main.go handler.go worker.go
+        focus: true
+      - commands:
+        - cd cmd/goten
+        - Watch -t go test
+      - commands:
+        - ./pinger.sh

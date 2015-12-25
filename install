@@ -3,7 +3,7 @@
 DOTDIR=$HOME/dotfiles
 
 CLEAN=0
-FULL=(prezto vim weechat mutt ssh chef tmux dev)
+FULL=(prezto neovim weechat mutt ssh chef tmux dev)
 MAC_MIN=(prezto tmux_macosx vim dev minimal)
 MIN=(prezto tmux_linux vim dev minimal)
 
@@ -23,6 +23,32 @@ prezto() {
   fi
 }
 
+fixycm() {
+  # https://github.com/Valloric/YouCompleteMe/issues/18
+  brew rm -f python
+  brew rm -f macvim
+  brew install python
+  brew linkapps python
+  brew install macvim --with-python --override-system-vim
+  brew linkapps macvim
+  cd /System/Library/Frameworks/Python.framework/Versions/
+  # make sure System Integrity is first disabled
+  # reboot, Cmd+r (to get to recovery mode), Terminal, `csrutil disable; reboot`
+  sudo ln -s /usr/local/Cellar/python/<CURRENT VERSION>Frameworks/Python.framework/Versions/Current Current
+  cd ~/.vim/bundle/YouCompleteMe
+  ./install.sh --clang-completer
+}
+
+virtualenv() {
+  # guide from https://hackercodex.com/guide/python-development-environment-on-mac-osx/
+  easy_install pip
+  pip install virtualenv
+  mkdir -p /Virtualenvs
+  cd ~/Virtualenvs
+  virtualenv default
+  source ~/Virtualenvs/default/bin/activate
+}
+
 vim() {
   # setup vim
   FILES=(vimrc vimrc.min)
@@ -33,6 +59,30 @@ vim() {
       rm -f "$HOME/.$i"
     fi
   done
+
+  if [ $CLEAN == 1 ]; then
+    echo "Vim removed"
+  else
+    echo "Launch VIM and don't forget install plugins"
+    echo "   :PluginInstall"
+  fi
+}
+
+neovim() {
+# https://github.com/ZyX-I/neovim/blob/42047acb4f07c689936b051864c6b4448b1b6aa1/runtime/doc/nvim_from_vim.txt#L12-L18
+  # setup neovim
+  mkdir -p ${XDG_CONFIG_HOME:=$HOME/.config}
+  ln -s "$DOTDIR/dotvim" $XDG_CONFIG_HOME/nvim
+  ln -s $HOME/.vim/vimrc $XDG_CONFIG_HOME/nvim/init.vim
+  if [ $CLEAN == 1 ]; then
+    rm -f "$XDG_CONFIG_HOME/nvim"
+  fi
+
+  # pip from virtualenv
+  virtualenv
+  pip install neovim
+  echo "Add path to Python bin"
+  echo "let g:python_host_prog = '/path/to/python'"
 
   if [ $CLEAN == 1 ]; then
     echo "Vim removed"
@@ -83,6 +133,12 @@ chef(){
 
 tmux_macosx(){
   # setup tmux
+  # with 24-bit color support
+  # https://www.reddit.com/r/vim/comments/2ozwe4/24_bit_vim_in_osx_iterm2_a_reality/
+  brew uninstall tmux
+  brew tap choppsv1/term24
+  brew install choppsv1/term24/tmux
+
   ln -s $DOTDIR/tmux.osx.conf $HOME/.tmux.conf
   if [ $CLEAN == 1 ]; then
     rm -f "$HOME/.tmux.conf"
