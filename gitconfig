@@ -1,22 +1,27 @@
 [user]
-	name = Bao Nguyen
-	email = bao@fastly.com
+  name = Bao Nguyen
+	email = baon@nvidia.com
+  signingkey = D57E947A
 
 [branch]
-	autosetuprebase = always
+  autosetuprebase = always
+  autoSetupMerge = always
 
 [branch "master"]
-	rebase = true
+  rebase = true
+
+[branch "caffeine/master"]
+  rebase = true
 
 [fetch]
-	recurseSubmodules = true
+  recurseSubmodules = true
 
 [push]
-	default = upstream
+  default = upstream
 
 [core]
   whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
-  editor = mvim  -v 
+  editor = mvim  -v
 
 [color "diff"]
   whitespace = red reverse
@@ -26,6 +31,7 @@
 
 [commit]
   whitespace = fix
+  gpgsign = false
 
 [color]
   branch = auto
@@ -37,6 +43,7 @@
 
 [pack]
   threads = 0
+	useSparse = true
 
 [rename]
   limit = 0
@@ -45,7 +52,10 @@
   pager = less -FRSX
 	excludesfile = /Users/bao/.gitignore
   #editor = subl -n -w
-	editor = mvim -v
+  editor = emacsclient
+  ignorecase = true
+  abbrev = 12
+  sparseCheckout = true
 
 [giggle]
   main-window-maximized = true
@@ -62,6 +72,12 @@
   chainreplyto = false
 
 [alias]
+  mainbranch = "!git remote show origin | sed -n '/HEAD branch/s/.*: //p'"
+  synced = "!git pull origin $(git mainbranch) --rebase"
+  update = "!git pull origin $(git rev-parse --abbrev-ref HEAD) --rebase"
+  squash = "!git rebase -v -i $(git mainbranch)"
+  publish = push origin HEAD --force-with-lease
+  pub = publish
   a = add
   amend = commit --amend
   au = add -u .
@@ -150,10 +166,14 @@
   # git commit -m "Subtree merged in foo"
 
 [credential]
-	helper = osxkeychain
+	helper = store
 
 [github]
 	user = sysbot
+  site = https://github.com
+  endpoint = https://api.github.com
+	oauth-token = 5e6570f6ff174bf571432ff0d01d74af23457685
+  # e9b8c990b65556daa0e50ed8d4a2824934137e46
 
 [diff]
   # Git diff will use (i)ndex, (w)ork tree, (c)ommit and (o)bject
@@ -166,6 +186,23 @@
   # http://gitfu.wordpress.com/2008/04/20/git-rerere-rereremember-what-you-did-last-time/
   enabled = true
 [filter "lfs"]
-	clean = git lfs clean %f
-	smudge = git lfs smudge %f
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
 	required = true
+	process = git-lfs filter-process
+[reflow]
+  git-server = GitHub
+  always-deploy-and-cleanup = true
+  asj-open-in-browser = false
+[pretty]
+  fixes = Fixes: %h (\"%s\")
+[ghi]
+  token = !security find-internet-password -a ngqbao@gmail.com -s github.com -l 'ghi token' -w
+[gitreview]
+  username = sysbot
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+[github "api.github.com"]
+	user = sysbot
+[github "github.com"]
+	user = sysbot

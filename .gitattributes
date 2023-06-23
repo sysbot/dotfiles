@@ -3,3 +3,6 @@
 .git-crypt !filter !diff
 gist filter=git-crypt diff=git-crypt
 hub filter=git-crypt diff=git-crypt
+dotrclone filter=git-crypt diff=git-crypt
+dotsec filter=git-crypt diff=git-crypt
+dotgcloud filter=git-crypt diff=git-crypt

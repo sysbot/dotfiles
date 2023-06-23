@@ -1,122 +1,204 @@
-# Taps {{{
-tap phinze/cask || true
-tap caskroom/versions || true
-tap aereal/homebrew-aereal_casks || true
-tap caskroom/homebrew-fonts || true
-# }}}
-#
-
-update
-
-# essential tools {{{
-install reattach-to-user-namespace --HEAD --wrap-launchctl --wrap-pbcopy-and-pbpaste
-install the_silver_searcher
-install tmux
-install zsh --disable-etcdir
-install mvim --with-lua --override-system-vi --HEAD
-install ceoreutils --with-default-names
-install findutils --with-default-names
-install gnu-indent --with-default-names
-install gnu-sed --with-default-names
-install gnutls --with-default-names
-install grep --with-default-names
-install gnu-tar --with-default-names
-install gawkinstall git-crypt
-install weechat --with-python --with-perl --with-ruby --with-curl --with-lua --with-aspel
-install android-sdk
-# }}}
-# networking tools {{{
-install nmap
-cask install wireshark
-cask install yed
-#}}}
-
-# mail tools {{{
-install msmtp
-install mutt --with-trash-patch --with-s-lang
-install offlineimap
-install notmuch
-install urlview
-install w3m
-install links
-install elinks
-# }}}
-# development tools {{{
-install git --with-pcre --with-brewed-openssl
-install tig
-install bfg
-install appledoc
-install autossh
-install ctags
-install curl-ca-bundle
-install direnv
-install heroku-toolbelt
-install htop-osx
-install hub
-install pow
-install proctools
-install proxychains-ng
-install pstree
-install terminal-notifier
-install unar
-install wget
-install chruby
-install ruby-install
-install autoenv
-install ack
-install ag
-install source-highlight
-# }}}
-# language runtimes {{{
-install go
-install io
-install leiningen
-install lua
-install luajit
-install phantomjs
-# }}}
-# Ruby dependencies {{{
-install openssl
-install readline
-install libyaml
-# }}}
-# cask {{{
-install brew-cask
-
-cask install alfred
-cask install aquaskk
-cask install appcleaner
-cask install bartender
-cask install controlplane
-cask install dropbox
-cask install iterm2
-cask install keyremap4macbook
-cask install kobito
-cask install lastfm
-cask install spotify
-cask install skype
-cask install smcfancontrol
-cask install testflight
-cask install vagrant
-cask install virtualbox
-cask install gpgtools
-
-# Browsers {{{
-cask install google-chrome-canary
-# }}}
-
-cask alfred link # Enable Alfred to find applications managed by cask
-# }}}
-#
-# fonts {{{
-cask install font-anonymous-pro
-cask install font-fantasque-sans-mono
-cask install font-fira-sans
-cask install font-inconsolata-dz
-cask install font-meslo-lg
-cask install font-oxygen-mono
-cask install font-share-tech-mono
-cask install font-source-code-pro
-cask install font-ubuntu
-# }}}
-# vim:set foldmethod=marker:
+brew 'ack'
+brew 'autoconf'
+brew 'autoconf-archive'
+brew 'autoenv'
+brew 'automake'
+brew 'autossh'
+brew 'awscli'
+brew 'bash'
+brew 'bdw-gc'
+brew 'bfg'
+brew 'binutils'
+brew 'boost'
+brew 'borgbackup'
+brew 'cairo'
+brew 'ccal'
+brew 'choppsv1/term24/tmux'
+brew 'chruby'
+brew 'cmake'
+brew 'coreutils'
+brew 'ctags'
+brew 'curl'
+tap 'railwaycat/emacsmacport'
+brew 'emacs-mac'
+brew 'direnv'
+brew 'dirmngr'
+brew 'dnsmasq'
+brew 'elinks'
+brew 'entr'
+brew 'ffmpeg', args: ['with-fontconfig', 'with-freetype', 'with-libmodplug', 'with-librsvg', 'with-libssh', 'with-libvorbis', 'with-libvpx', 'with-openh264', 'with-openjpeg', 'with-opus', 'with-rtmpdump', 'with-sdl2', 'with-tools', 'with-wavpack', 'with-webp', 'with-x265', 'with-xz']
+brew 'findutils'
+brew 'flac'
+brew 'fontconfig'
+brew 'freetype'
+brew 'freexl'
+brew 'gawk'
+brew 'gcal'
+brew 'gcc'
+brew 'gdal'
+brew 'gdb', args: ['with-python']
+brew 'gdbm'
+brew 'gdk-pixbuf'
+brew 'geos'
+brew 'gettext'
+brew 'giflib'
+brew 'git'
+brew 'git-crypt'
+brew 'glib'
+brew 'glide'
+brew 'gmime'
+brew 'gmp'
+brew 'gnu-indent'
+brew 'gnu-sed'
+brew 'gnu-tar'
+brew 'gnu-which'
+brew 'gnupg2'
+brew 'gnutls'
+brew 'go'
+brew 'gobject-introspection'
+brew 'graphviz'
+brew 'harfbuzz'
+brew 'homebrew/dupes/diffutils'
+brew 'homebrew/dupes/ed'
+brew 'homebrew/dupes/file-formula'
+brew 'homebrew/dupes/gpatch'
+brew 'homebrew/dupes/grep'
+brew 'homebrew/dupes/gzip'
+brew 'homebrew/dupes/less', args: ['with-pcre']
+brew 'homebrew/dupes/m4'
+brew 'homebrew/dupes/make'
+brew 'homebrew/dupes/openssh'
+brew 'homebrew/dupes/rsync'
+brew 'homebrew/dupes/unzip'
+brew 'homebrew/science/r'
+brew 'homebrew/versions/perl518'
+brew 'htop-osx'
+brew 'httpie'
+brew 'hub'
+brew 'hybridgroup/tools/gort'
+brew 'icu4c'
+brew 'imagemagick'
+brew 'io'
+brew 'isl'
+brew 'ispell'
+brew 'isync'
+brew 'jpeg'
+brew 'jq'
+brew 'json-c'
+brew 'justwatchcom/gopass/gopass'
+brew 'lame'
+brew 'leiningen'
+brew 'libassuan'
+brew 'libcroco'
+brew 'libev'
+brew 'libevent'
+brew 'libffi'
+brew 'libgcrypt'
+brew 'libgeotiff'
+brew 'libgpg-error'
+brew 'libksba'
+brew 'liblwgeom'
+brew 'libmagic'
+brew 'libmpc'
+brew 'libogg'
+brew 'libpng'
+brew 'librsvg'
+brew 'libsndfile'
+brew 'libspatialite'
+brew 'libsvg'
+brew 'libtasn1'
+brew 'libtiff'
+brew 'libtool'
+brew 'libunistring'
+brew 'libusb'
+brew 'libusb-compat'
+brew 'libvorbis'
+brew 'libxml2'
+brew 'libyaml'
+brew 'libyubikey'
+brew 'links'
+brew 'lua'
+brew 'luajit'
+brew 'lzip'
+brew 'lzlib'
+brew 'mpfr'
+brew 'msmtp'
+brew 'mu', args: ['HEAD', 'with-emacs']
+brew 'mutt', args: ['with-s-lang']
+brew 'nettle'
+brew 'nmap'
+brew 'node'
+brew 'notmuch', args: ['with-ruby']
+brew 'offlineimap'
+brew 'oniguruma'
+brew 'openssl'
+brew 'ossp-uuid'
+brew 'peco'
+brew 'p11-kit'
+brew 'p7zip'
+brew 'pandoc'
+brew 'pango'
+brew 'pcre'
+brew 'perl'
+brew 'phantomjs'
+brew 'pinentry'
+brew 'pixman'
+brew 'pkg-config'
+brew 'pow'
+brew 'proctools'
+brew 'proj'
+brew 'proxychains-ng'
+brew 'pstree'
+brew 'pth'
+brew 'python'
+brew 'python3'
+brew 'rclone'
+brew 'readline'
+brew 'reattach-to-user-namespace'
+brew 'ruby'
+brew 'ruby-install'
+brew 'rust'
+brew 's-lang'
+brew 's3cmd'
+brew 'shared-mime-info'
+brew 'source-highlight'
+brew 'sqlite'
+brew 'sysbot/tap/noms'
+brew 'talloc'
+brew 'terminal-notifier'
+brew 'terraform'
+brew 'the_silver_searcher'
+brew 'tig'
+brew 'tokyo-cabinet'
+brew 'tree'
+brew 'unar'
+brew 'unrar'
+brew 'urlview'
+brew 'w3m'
+brew 'watch'
+brew 'wdiff', args: ['with-gettext']
+brew 'weechat', args: ['with-perl', 'with-python']
+brew 'wget'
+brew 'x264'
+brew 'xapian'
+brew 'xvid'
+brew 'xz'
+brew 'yajl'
+brew 'ykpers'
+brew 'zsh', args: ['without-etcdir']
+cask 'airflow'
+cask 'grandperspective'
+cask 'docker'
+cask 'electrum'
+cask 'google-cloud-sdk'
+cask 'google-drive'
+cask 'libreoffice'
+cask 'openscad'
+cask 'rstudio'
+cask 'spotify'
+cask 'transmission'
+cask 'vagrant'
+cask 'virtualbox'
+cask 'vlc'
+cask 'wireshark'
+cask 'yed'

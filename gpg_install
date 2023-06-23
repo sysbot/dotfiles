@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # subkey and master key seperation setup [1][2]
+export GNUPGHOME=/Volumes/keys/gnupg
 
 MASTER="ngqbao@gmail.com"
 
