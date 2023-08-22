@@ -1,0 +1,51 @@
+This is an older issue, but it's still marked as OPEN and I feel like this might be a meaningful contribution:
+
+https://github.com/Flare576/dotfiles/blob/master/.jira.d/config.yml
+
+I have ~20 custom commands I use on a daily basis.
+
+(What follows is a super-long-winded example of using the most common ones. Feel
+free to ignore and just look through the config!)
+
+My current project has moved to a hosted Jira instance, so I'm not able to rely
+on the API token anymore (I miss it a lot). So, every morning I have to load up
+the website, grab the cookie from a XHR request, and run
+
+jira cookie 'whatever=stuff; was=in_there'
+after that, I pull down the tickets from the current sprint
+
+jira s
+
+and read through them. Our team operates on "devs should grab from the QA
+column if there's a story there" so I usually pick up the first ticket in QA,
+say 123
+
+jira w PROJ-123
+jira v
+
+which will then spit out the ticket data. If it turns out I can't actually do
+anything with it, I pop it off and grab the next one
+
+jira w -r
+jira w PROJ-124
+
+Once I find a story I can work, say it's still a QA story, I need to mark myself
+the reviewer (our team has a custom field so we don't step on each-other's toes)
+
+
+jira qa -r
+
+and then copy the Acceptance Criteria out of the vim window that opens. I then open the story for review
+
+
+jira r
+
+and use the provided template to review. After filling out the template and :wq
+from vim, go-jira pops open a transition window for me, defaulted to Sign Off,
+optimistically assuming the story passed. If it didn't, I can Ctrl+Z to
+background the vim doc and do
+
+
+jira ts
+
+to see the valid transitions for the story, then fill in that data going back to fg.

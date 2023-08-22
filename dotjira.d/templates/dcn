@@ -1,0 +1,81 @@
+{{/* dcn create template */ -}}
+fields:
+  project:
+    key: {{ or .overrides.project "" }}
+  issuetype:
+    name: Task
+  summary: >-
+    {{ or .overrides.summary "" }}{{if .meta.fields.priority.allowedValues}}
+  priority: # Values: {{ range .meta.fields.priority.allowedValues }}{{.name}}, {{end}}
+    name: {{ or .overrides.priority ""}}{{end}}{{if .meta.fields.components.allowedValues}}
+  components: # Values: {{ range .meta.fields.components.allowedValues }}{{.name}}, {{end}}{{ range split "," (or .overrides.components "")}}
+    - name: {{ . }}{{end}}{{end}}
+  description: |~
+    {{ or .overrides.description "" | indent 4 }}{{if .meta.fields.assignee}}
+  assignee:
+    name: {{ or .overrides.assignee "" }}{{end}}{{if .meta.fields.reporter}}
+    emailAddress: {{ or .overrides.assignee "" }}{{end}}
+    {{if .meta.fields.reporter}}
+  reporter:
+    name: {{ or .overrides.reporter .overrides.login }}{{end}}{{if .meta.fields.customfield_10110}}
+    emailAddress: {{ or .overrides.reporter .overrides.login }}{{end}}{{if .meta.fields.customfield_10110}}
+  # watchers
+  customfield_10110: {{ range split "," (or .overrides.watchers "")}}
+    - name: {{.}}{{end}}
+    - name:{{end}}
+  customfield_26400:
+    value: "SJC4 Santa Clara, CA (Vantage CA15 DM2)"
+# TODO: pull from a script for the node
+  customfield_26401: "n/a"
+  customfield_26403:
+    value: "Server"
+  customfield_26404:
+    value: "NVIDIA Constellation Drive Node (DCC)"
+  customfield_26405:
+    value: "Cable-Reseat"
+  # ok to power off?
+  customfield_27007:
+    value: "Yes"
+  # breakfix?
+  customfield_26906:
+    value: "Yes"
+  # rma?
+  customfield_31500:
+    value: "No"
+  # rack group
+  customfield_31501:
+    value: "AV1"
+
+        # "customfield_26906": {
+        #     "id": "30321",
+        #     "self": "https://jirasw.nvidia.com/rest/api/2/customFieldOption/30321",
+        #     "value": "No"
+        # },
+
+#         "customfield_26400": {
+#             "id": "29610",
+#             "self": "https://jirasw.nvidia.com/rest/api/2/customFieldOption/29610",
+#             "value": "SJC4 Santa Clara, CA (Vantage CA15 DM2)"
+#         },
+#         "customfield_26401": "QTFCU1911004C",
+#         "customfield_26402": null,
+#         "customfield_26403": {
+#             "id": "29618",
+#             "self": "https://jirasw.nvidia.com/rest/api/2/customFieldOption/29618",
+#             "value": "Server"
+#         },
+#         "customfield_26404": {
+#             "id": "29754",
+#             "self": "https://jirasw.nvidia.com/rest/api/2/customFieldOption/29754",
+#             "value": "NVIDIA Constellation Drive Node (DCC)"
+#         },
+#         "customfield_26405": {
+#             "id": "29797",
+#             "self": "https://jirasw.nvidia.com/rest/api/2/customFieldOption/29797",
+#             "value": "Cable-Reseat"
+#         },
+
+
+# update template for dcn
+# NSVH-7890
+# https://jirasw.nvidia.com/browse/MSRE-3990

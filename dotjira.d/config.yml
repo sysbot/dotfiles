@@ -1,0 +1,676 @@
+#!/bin/bash
+
+sprintFile="${HOME}/.jira.d/current-sprint"
+echo "SPRINT_FILE: ${sprintFile}"
+sprint=$(head -n 1 $sprintFile)
+echo "sprint: ${sprint}"
+
+lastIssueFile="${HOME}/.jira.d/last-issue"
+echo "LAST_ISSUE_FILE: ${lastIssueFile}"
+lastIssue=$(head -n 1 $lastIssueFile | awk -F' ' '{print $2}')
+echo "last issue: ${lastIssue}"
+
+issueFile="${HOME}/.jira.d/current-issue"
+echo "ISSUE_FILE: ${issueFile}"
+issue=$(head -n 1 $issueFile)
+echo "issue: ${issue}"
+
+currentEpic=MSRE-3188
+
+jira_endpoint=jirasw.nvidia.com
+jira_project=MSRE
+jira_authentication_method=api-token
+jira_user=baon
+jira_password_source=gopass
+jira_password_name=websites/jirasw.nvidia.com/baon
+
+echo "endpoint: https://${jira_endpoint}"
+echo "project: ${jira_project}"
+echo "authentication-method: ${jira_authentication_method}"
+echo "user: ${jira_user}"
+echo "password-source: ${jira_password_source}"
+echo "password-name: ${jira_password_name}"
+
+cat<<EOM
+queries:
+  todo: |
+    resolution = unresolved {{if .project}}AND project = '{{.project}}'{{end}} AND status = 'To Do'
+  open: |
+    resolution = unresolved {{if .project}}AND project = '{{.project}}'{{end}} AND status = 'Open'
+  # query: https://github.com/go-jira/jira/issues/99
+custom-commands:
+  - name: commentissue
+    aliases: ['cc']
+    help: comment on issue
+    args:
+      - name: issue
+        required: true
+      - name: comment
+        required: true
+    script: |-
+      jira comment {{ issue }} --noedit -m '{{ comment }}'
+
+  - name: blocklast
+    aliases: ['bl']
+    help: link blocks to last issue
+    args:
+      - name: in
+        required: true
+    script: |-
+      echo $lastIssue
+      {{jira}} issuelink '{{ args.in }}' blocks "$lastIssue"
+
+  - name: linkblocks
+    aliases: ['blocks']
+    help: link blocks
+    args:
+      - name: out
+        required: true
+      - name: in
+        required: true
+    script: |-
+      {{jira}} issuelink \
+        '{{args.out}}' \
+        blocks \
+        '{{args.in}}'
+
+  - name: ngcsre
+    aliases: ['nsre']
+    help: create ticket for ngc sre
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+      {{jira}} create \
+        --project NGCSRE \
+        --template create_ngcsre \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: kalidas
+    aliases: ['ngc']
+    help: create ticket for ngc
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+      {{jira}} create \
+        --project NGCSRE \
+        --template create_ngcsre \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=kganesan  > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: projectspecial
+    aliases: ['project']
+    help: create ticket for me for project
+    options:
+      - name: addsprint
+        short: 'a'
+        type: bool
+        default: true
+        help: add issue to current sprint
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project MSRE \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=baon \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "adding to epic: MSRE-5089 "
+      {{jira}} epic add MSRE-5089 \$ISSUE
+
+  - name: support
+    aliases: ['sup']
+    help: create ticket for me for support
+    options:
+      - name: addsprint
+        short: 'a'
+        type: bool
+        default: true
+        help: add issue to current sprint
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project MSRE \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=baon \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "adding to epic: $currentEpic"
+      {{jira}} epic add $currentEpic \$ISSUE
+
+  - name: msreoncall
+    aliases: ['oncall']
+    help: create ticket for me
+    options:
+      - name: addsprint
+        short: 'a'
+        type: bool
+        default: true
+        help: add issue to current sprint
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project MSRE \
+        --template oncall \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=baon \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+        # TODO add sprint
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "adding to sprint: https://jirasw.nvidia.com/browse/\$ISSUE"
+      {{jira}} sprint-add \$ISSUE
+      echo "adding to epic: AV2 Support Epic"
+      {{jira}} epic add MSRE-4659 \$ISSUE
+
+  - name: bao
+    aliases: ['me']
+    help: create ticket for me
+    options:
+      - name: addsprint
+        short: 'a'
+        type: bool
+        default: true
+        help: add issue to current sprint
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project MSRE \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=baon \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "adding to sprint: https://jirasw.nvidia.com/browse/\$ISSUE"
+      {{jira}} sprint-add \$ISSUE
+      echo "adding to epic: $currentEpic"
+      {{jira}} epic add $currentEpic \$ISSUE
+
+  - name: mcinf
+    aliases: ['mcc']
+    help: create ticket for mc
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      {{jira}} create \
+        --project NSVMC \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override assignee=svemulapalli \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: mcswinf
+    aliases: ['mc']
+    help: create ticket for mc
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      {{jira}} create \
+        --project NSVIS \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: constellation-platform
+    aliases: ['csp']
+    help: create ticket for constellation sw platform
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+      - name: node
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+      {{jira}} create \
+        --project CONSP \
+        --browse \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override assignee=gdittemore \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: akash
+    aliases: ['dcri']
+    help: create ticket for networking to work on node
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+      - name: node
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project NGCGNI \
+        --template dcni \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='[RNO1] - {{args.summary}}' \
+        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override assignee=aknagpure \
+        --override priority=High \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print $2}')
+      echo "created: https://jirasw.nvidia.com/browse/\$ISSUE"
+  - name: mgoetz
+    aliases: ['dcr']
+    help: create ticket for mc to work on node
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+      - name: node
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project NSVH \
+        --template dcr \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='[RNO1] - {{args.summary}}' \
+        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override assignee=mgoetz \
+        --override priority=High \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print $2}')
+      echo "created: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: phil11
+    aliases: ['dcn11']
+    help: create ticket for mc to work on node
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+      - name: node
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project NSVH \
+        --template dcn11 \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='[SJC11] - {{args.summary}}' \
+        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override assignee=mludlow \
+        --override priority=High \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print $2}')
+      echo "created: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: markludlown
+    aliases: ['dcn']
+    help: create ticket for mc to work on node
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+      - name: node
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project NSVH \
+        --template dcn \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='[SJC4] - {{args.summary}}' \
+        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override assignee=mludlow \
+        --override priority=High \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print $2}')
+      echo "created: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: markludlow
+    aliases: ['dc']
+    help: create ticket for mc
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+      {{jira}} create \
+        --project NSVH \
+        --browse \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=mludlow \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
+
+  - name: sprint
+    help: display issues for active sprint
+    options:
+      - name: status
+        short: s
+        default: ""
+    script: |-
+      case "{{options.status}}" in
+        t|todo) STATUS="to do"
+        ;;
+        p|progress) STATUS="in progress"
+        ;;
+        rev|review) STATUS="in review"
+        ;;
+        r) STATUS="resolved"
+        ;;
+        d) STATUS="done"
+        ;;
+        *) STATUS="{{options.status}}"
+      esac
+      if [ -n "$STATUS" ]; then
+        STATUS_QUERY="and status='$STATUS'"
+      fi
+      if [ -n "$jira_project" ]; then
+          {{jira}} list --template table --query "sprint in openSprints() and resolution = unresolved and project=$jira_project $STATUS_QUERY ORDER BY rank asc, created"
+          # {{jira}} list --template table --query
+      else
+          echo "\"project: ...\" configuration missing from .jira.d/config.yml"
+      fi
+
+  - name: currentsprint
+    aliases: ['cs']
+    help: add issue to active sprint for project
+    script: |
+      # fetch these daily into a file
+      if [[ -e $sprintFile ]]; then
+        rm -f $sprintFile
+      fi
+      # {{jira}} req "https://$jira_endpoint/rest/agile/1.0/board?projectKeyOrId=$jira_project&type=scrum" --gjq values.1.id
+      board_id=25224
+      state=active
+      {{jira}} req "https://$jira_endpoint/rest/agile/1.0/board/25224/sprint?state=active" --gjq values.0.id > $sprintFile
+      cat $sprintFile
+
+  - name: sprint-add
+    aliases: ['sa']
+    help: add issue to active sprint for project
+    options:
+      - name: next
+        short: 'n'
+        type: bool
+        help: add issue to next sprint, rather than the active one
+    args:
+      - name: ISSUE
+        required: false
+      - name: PROJECT
+        help: Filter on a Project & Component if set, defaults to \$jira_project
+        default: \$jira_project
+    script: |
+      state={{if options.next}}future{{else}}active{{end}}
+      if [ "$sprint" = "" ]; then
+        echo "ERROR: No sprint in $curstate" >&2
+        exit 1
+      fi
+      if [ "{{args.ISSUE}}" = "" ]; then
+        echo "No issue specified, adding current issue $curstate" >&2
+        {{jira}} req -M POST "/rest/agile/1.0/sprint/$sprint/issue" "{\"issues\":[\"{{args.ISSUE}}\"]}"
+        exit 0
+      fi
+      {{jira}} req -M POST "/rest/agile/1.0/sprint/$sprint/issue" "{\"issues\":[\"{{args.ISSUE}}\"]}"
+
+  - name: epics
+    help: list epics
+    script: |-
+      {{jira}} list --query "resolution = unresolved AND issuetype = Epic AND project = $jira_project ORDER BY Rank Desc" --queryfields=customfield_12551,issuetype,priority,assignee,status,created,reporter
+
+  - name: emptyepics
+    help: list epics without issues and assignees
+    script: |-
+      {{jira}} list --query "resolution = unresolved AND issuetype = Epic AND issueFunction not in hasLinkType(\"Epic-Story Link\") and assignee is EMPTY AND project = $jira_project ORDER BY Rank Desc" --queryfields=customfield_12551,issuetype,priority,assignee,status,created,reporter
+
+  - name: do
+    help: display issues created by me
+    script: |-
+      if [ -n "$jira_project" ]; then
+          # if `project: ...` configured just list the issues for current project
+          {{jira}} list --template table --query "resolution = unresolved and reporter=currentuser() and assignee=currentuser() and project = $jira_project ORDER BY priority asc, created"
+      else
+          # otherwise list issues for all project
+          {{jira}} list --template table --query "resolution = unresolved and reporter=currentuser() and assignee=currentuser() and ORDER BY priority asc, created"
+      fi
+
+  - name: created
+    help: display issues created by me
+    script: |-
+      if [ -n "$jira_project" ]; then
+          # if `project: ...` configured just list the issues for current project
+          {{jira}} list --template table --query "resolution = unresolved and reporter=currentuser() ORDER BY priority asc, created"
+      else
+          # otherwise list issues for all project
+          {{jira}} list --template table --query "resolution = unresolved and reporter=ORDER() currentuser BY priority asc, created"
+      fi
+
+  - name: mine
+    help: display issues assigned to me
+    script: |-
+      if [ -n "$jira_project" ]; then
+          # if `project: ...` configured just list the issues for current project
+          {{jira}} list --template table --query "resolution = unresolved and assignee=currentuser() and project = $jira_project ORDER BY priority asc, created"
+      else
+          # otherwise list issues for all project
+          {{jira}} list --template table --query "resolution = unresolved and assignee=currentuser() ORDER BY priority asc, created"
+      fi
+
+  - name: ls-named-query-fzf
+    aliases:
+      - lf
+    help: ls with named queries using fzf interface
+    args:
+      - name: query
+    script: |
+      # {{jira}} list -n {{args.query}} | \
+      #   fzf --preview="echo {} | cut -d : -f 1 | xargs -I % sh -c 'jira view %'"
+      {{jira}} list --query "resolution = unresolved and assignee=currentuser() ORDER BY created" | fzf --preview="echo {}| cut -d : -f 1 |xargs -I % sh -c 'jira view %'"
+      # customs: https://github.com/go-jira/jira/issues/455
+
+  # - name: sprint
+  #   help: display issues for active sprint
+  #   script: |-
+  #     if [ -n "$jira_project" ]; then
+  #         # if `project: ...` configured just list the issues for current project
+  #         {{jira}} list --template table --query "sprint in openSprints() and type != epic and resolution = unresolved and project=$jira_project ORDER BY rank asc, created"
+  #     else
+  #         # otherwise list issues for all project
+  #         {{jira}} list --template table --query "sprint in openSprints() and type != epic and resolution = unresolved ORDER BY rank asc, created"
+  #     fi
+
+  - name: review
+    help: Transition issue to In review state
+    args:
+      - name: ISSUE
+        required: true
+        repeat: true
+    script: |-
+      {{range args.ISSUE}}
+      {{jira}} transition --noedit "resloved to in review" {{.}}
+      sleep 0.2
+      {{end}}
+
+  - name: print-project
+    help: print the name of the configured project
+    script: "echo $jira_project"
+
+  - name: env
+    help: print the JIRA environment variables available to custom commands
+    script: |
+      env | grep JIRA
+
+  - name: custom-test
+    help: Testing the custom commands
+    options:
+      - name: test
+        short: t
+        type: bool
+        default: default
+      - name: abc
+        short: a
+        default: default
+      - name: day
+        type: ENUM
+        enum:
+          - Monday
+          - Tuesday
+          - Wednesday
+          - Thursday
+          - Friday
+        required: false
+    args:
+      - name: ARG
+        required: false
+      - name: MORE
+        repeat: false
+    script: |-
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print $2}')
+      echo "E: \$ISSUE"
+      rm abc
+      echo "e" > abc
+      EE=$(cat abc1111)
+      echo "E: \$EE"
+      rm abc
+      echo "b" > abc
+      EE=\$(cat abc)
+      echo "E: \$EE"
+
+
+  - name: v
+    help: Views current JIRA_ISSUE if no ISSUE is provided
+    args:
+      - name: ISSUE
+        default: \$jira_issue
+    script: |-
+      {{jira}} view -t customView {{args.ISSUE}}
+EOM
