@@ -16,11 +16,14 @@ issue=$(head -n 1 $issueFile)
 echo "issue: ${issue}"
 
 currentEpic=MSRE-3188
+# Health support for Maglev Workflow Improvement
+altEpic=MSRE-9517
 
 jira_endpoint=jirasw.nvidia.com
 jira_project=MSRE
 jira_authentication_method=api-token
 jira_user=baon
+# XXX token expires in 3 month (today feb 27 2024)
 jira_password_source=gopass
 jira_password_name=websites/jirasw.nvidia.com/baon
 
@@ -224,6 +227,41 @@ custom-commands:
       echo "adding to epic: AV2 Support Epic"
       {{jira}} epic add MSRE-4659 \$ISSUE
 
+  - name: baoalt
+    aliases: ['mea']
+    help: create ticket for me
+    options:
+      - name: addsprint
+        short: 'a'
+        type: bool
+        default: true
+        help: add issue to current sprint
+    args:
+      - name: summary
+        required: true
+      - name: description
+        required: true
+    script: |-
+      if [[ -e $lastIssueFile ]]; then
+        rm -f $lastIssueFile
+      fi
+
+      {{jira}} create \
+        --project MSRE \
+        --template create \
+        --noedit \
+        --override issuetype=Story \
+        --override summary='{{args.summary}}' \
+        --override description='{{args.description}}' \
+        --override assignee=baon \
+        | awk -F' ' '{print $2}' > $lastIssueFile
+
+      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
+      echo "adding to sprint: https://jirasw.nvidia.com/browse/\$ISSUE"
+      {{jira}} sprint-add \$ISSUE
+      echo "adding to epic: $altEpic"
+      {{jira}} epic add $altEpic \$ISSUE
+
   - name: bao
     aliases: ['me']
     help: create ticket for me
@@ -260,7 +298,7 @@ custom-commands:
       {{jira}} epic add $currentEpic \$ISSUE
 
   - name: mcinf
-    aliases: ['mcc']
+    aliases: ['mcr']
     help: create ticket for mc
     args:
       - name: summary
@@ -270,7 +308,7 @@ custom-commands:
     script: |-
       {{jira}} create \
         --project NSVMC \
-        --template create \
+        --template mcr \
         --noedit \
         --override issuetype=Story \
         --override assignee=svemulapalli \
@@ -323,7 +361,7 @@ custom-commands:
         --noedit \
         --override issuetype=Story \
         --override summary='{{args.summary}}' \
-        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override description='{{args.description}}: https://nautobot.service.prd.itauto.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
         --override assignee=gdittemore \
         | awk -F' ' '{print $2}' > $lastIssueFile
 
@@ -351,7 +389,7 @@ custom-commands:
         --noedit \
         --override issuetype=Story \
         --override summary='[RNO1] - {{args.summary}}' \
-        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override description='{{args.description}}: https://nautobot.service.prd.itauto.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
         --override assignee=aknagpure \
         --override priority=High \
         | awk -F' ' '{print $2}' > $lastIssueFile
@@ -379,7 +417,7 @@ custom-commands:
         --noedit \
         --override issuetype=Story \
         --override summary='[RNO1] - {{args.summary}}' \
-        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override description='{{args.description}}: https://nautobot.service.prd.itauto.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
         --override assignee=mgoetz \
         --override priority=High \
         | awk -F' ' '{print $2}' > $lastIssueFile
@@ -408,7 +446,7 @@ custom-commands:
         --noedit \
         --override issuetype=Story \
         --override summary='[SJC11] - {{args.summary}}' \
-        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override description='{{args.description}}: https://nautobot.service.prd.itauto.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
         --override assignee=mludlow \
         --override priority=High \
         | awk -F' ' '{print $2}' > $lastIssueFile
@@ -437,7 +475,7 @@ custom-commands:
         --noedit \
         --override issuetype=Story \
         --override summary='[SJC4] - {{args.summary}}' \
-        --override description='{{args.description}}: https://netbox.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
+        --override description='{{args.description}}: https://nautobot.service.prd.itauto.nvidia.com/ipam/ip-addresses/?q={{args.node}}' \
         --override assignee=mludlow \
         --override priority=High \
         | awk -F' ' '{print $2}' > $lastIssueFile
