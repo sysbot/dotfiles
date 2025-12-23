@@ -1,0 +1,21 @@
+account personal
+host smtp.gmail.com
+port 587
+protocol smtp
+auth on
+from ngqbao@gmail.com
+user ngqbao@gmail.com
+tls on
+tls_trust_file ~/.mutt/secure_ca.cert
+
+account fastly
+host smtp.gmail.com
+port 587
+protocol smtp
+auth on
+from bao@fastly.com
+user bao@fastly.com
+tls on
+tls_trust_file ~/.mutt/secure_ca.cert
+
+account default : fastly

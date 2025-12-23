@@ -15,9 +15,10 @@ echo "ISSUE_FILE: ${issueFile}"
 issue=$(head -n 1 $issueFile)
 echo "issue: ${issue}"
 
-currentEpic=MSRE-3188
 # Health support for Maglev Workflow Improvement
-altEpic=MSRE-9517
+currentEpic=MSRE-9517
+# Node support
+altEpic=MSRE-11011
 
 jira_endpoint=jirasw.nvidia.com
 jira_project=MSRE
@@ -227,8 +228,8 @@ custom-commands:
       echo "adding to epic: AV2 Support Epic"
       {{jira}} epic add MSRE-4659 \$ISSUE
 
-  - name: baoalt
-    aliases: ['mea']
+  - name: baosupport
+    aliases: ['mes']
     help: create ticket for me
     options:
       - name: addsprint
@@ -309,28 +310,6 @@ custom-commands:
       {{jira}} create \
         --project NSVMC \
         --template mcr \
-        --noedit \
-        --override issuetype=Story \
-        --override assignee=svemulapalli \
-        --override summary='{{args.summary}}' \
-        --override description='{{args.description}}' \
-        | awk -F' ' '{print $2}' > $lastIssueFile
-
-      ISSUE=\$(cat ~/.jira.d/last-issue | awk -F' ' '{print \$2}')
-      echo "issue: https://jirasw.nvidia.com/browse/\$ISSUE"
-
-  - name: mcswinf
-    aliases: ['mc']
-    help: create ticket for mc
-    args:
-      - name: summary
-        required: true
-      - name: description
-        required: true
-    script: |-
-      {{jira}} create \
-        --project NSVIS \
-        --template create \
         --noedit \
         --override issuetype=Story \
         --override summary='{{args.summary}}' \
@@ -547,7 +526,7 @@ custom-commands:
       if [[ -e $sprintFile ]]; then
         rm -f $sprintFile
       fi
-      # {{jira}} req "https://$jira_endpoint/rest/agile/1.0/board?projectKeyOrId=$jira_project&type=scrum" --gjq values.1.id
+      # {{jira}} req "https://$jira_endpoint/rest/agile/1.0/board?projectKeyOrId=$jira_project&type=scrum" --Gjq values.1.id
       board_id=25224
       state=active
       {{jira}} req "https://$jira_endpoint/rest/agile/1.0/board/25224/sprint?state=active" --gjq values.0.id > $sprintFile

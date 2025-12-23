@@ -1,0 +1,1271 @@
+# source Prezto
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  if [[ -z "${CLAUDECODE}" ]]; then
+    source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+  fi
+fi
+
+function em(){emacsclient -t $@}
+function vi(){emacsclient -t $@}
+function emacs(){emacsclient --no-wait -c -a emacs "$@" >/dev/null 2>&1 &}
+
+function cmdinstallpkg(){
+  # http://apple.stackexchange.com/questions/75684/installing-xcode-via-command-line
+  if [ -a $1 ]; then
+    local name=`echo $1 | tr -d '.pkg|.dmg'`
+    hdiutil attach $1 && cd /Volumes/$name && sudo installer -pkg $name.mpkg -target / && cd - && hdiutil detach /Volumes/$name && rm $1
+  else
+    echo "Must be in the same dir as the package/dmg file"
+  fi
+}
+
+function heic2jpeg(){
+         mogrify -format jpg *.heic
+}
+
+function zcm(){
+  cd ~/.zprezto
+  git commit . -m $@
+  git push
+  cd ~/dotfiles/prezto
+  git checkout master
+  git pull
+  cd ~/dotfiles
+  git commit . -m "bump prezto version"
+  git push
+  popd
+  popd
+  popd
+}
+
+function loadkey(){
+  eval `Ssh-agent -s` && remote
+}
+
+function rename(){
+for f in *.jpg-large; do echo "filename: ${f%.*}, extension: ${f##*.}"; done
+}
+
+function twimage(){
+for f in *.jpg-large; do mv "$f" "${f%.*}"; done
+}
+
+gssh() {
+  gcloud compute --project "dev-fortress-92118" ssh --zone "us-central1-f" "tk-default-ubuntu-1604-17e63e"
+}
+
+function caid(){
+ curl https://api.caffeine.tv/v1/users/$1
+}
+
+extract () {
+    if [ -f $1 ] ; then
+        case $1 in
+            *.tar.bz2)        tar xjf $1        ;;
+            *.tar.xz)        tar xJf $1        ;;
+            *.tar.gz)         tar xzf $1        ;;
+            *.bz2)            bunzip2 $1        ;;
+            *.rar)            unrar x $1        ;;
+            *.gz)             gunzip $1         ;;
+            *.tar)            tar xf $1         ;;
+            *.tbz2)           tar xjf $1        ;;
+            *.tgz)            tar xzf $1        ;;
+            *.zip)            unzip $1          ;;
+            *.Z)              uncompress $1     ;;
+            *.7z)             7zr e $1          ;;
+            *)                echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+function remote(){
+  if [[ "$TMUX" == "" ]]; then
+    tmux attach -t remote || tmux new -s remote
+    exit 0
+  fi
+}
+
+function work(){
+  if [[ "$TMUX" == "" ]]; then
+    tmux attach -t work || tmux new -s work
+    exit 0
+  fi
+}
+
+function monitor(){
+  if [[ "$TMUX" == "" ]]; then
+    tmux attach -t monitor || tmux new -s monitor
+    exit 0
+  fi
+}
+
+CASE_SENSITIVE="true"
+DISABLE_UPDATE_PROMPT=true
+
+# remote hosts completion [1]
+#[ -f ~/.ssh/config ] && : ${(A)ssh_config_hosts:=${${${${(@M)${(f)"$(<~/.ssh/config)"}:#Host *}#Host }:#*\**}:#*\?*}}
+[ -f ~/.ssh/known_hosts ] && : ${(A)ssh_known_hosts:=${${${(f)"$(<$HOME/.ssh/known_hosts)"}%%\ *}%%,*}}
+[ -f ~/.ssh/work_hosts ] && : ${(A)work_hosts:=${${${(f)"$(<$HOME/.ssh/work_hosts)"}%%\ *}%%,*}}
+[ -f ~/.ssh/work_net_hosts ] && : ${(A)work_net_hosts:=${${${(f)"$(<$HOME/.ssh/work_net_hosts)"}%%\ *}%%,*}}
+zstyle ':completion:*:hosts' hosts $ssh_known_hosts $work_net_hosts $work_hosts
+# [1] http://blog.jhr-online.de/290
+
+setopt auto_pushd
+setopt AUTO_CD              # cd by just typing directory name
+setopt CDABLE_VARS          # cd to variable values
+setopt PUSHD_IGNORE_DUPS    # don't push duplicate directories
+setopt PUSHD_SILENT         # don't print directory stack
+setopt SHARE_HISTORY        # share history between sessions
+setopt INC_APPEND_HISTORY   # append to history immediately
+setopt HIST_IGNORE_DUPS     # don't record duplicate commands
+setopt HIST_FIND_NO_DUPS    # don't show duplicates in history search
+
+# remote hosts, remote item completion
+# ssh, scp, ping, host
+zstyle ':completion:*:scp:*' tag-order \
+      'hosts:-host hosts:-domain:domain hosts:-ipaddr:IP\ address *'
+zstyle ':completion:*:scp:*' group-order \
+      users files all-files hosts-domain hosts-host hosts-ipaddr
+zstyle ':completion:*:ssh:*' tag-order \
+      users 'hosts:-host hosts:-domain:domain hosts:-ipaddr:IP\ address *'
+zstyle ':completion:*:ssh:*' group-order \
+      hosts-domain hosts-host users hosts-ipaddr
+zstyle ':completion:*:(ssh|scp):*:hosts-host' ignored-patterns \
+      '*.*' loopback localhost
+zstyle ':completion:*:(ssh|scp):*:hosts-domain' ignored-patterns \
+      '<->.<->.<->.<->' '^*.*' '*@*'
+zstyle ':completion:*:(ssh|scp):*:hosts-ipaddr' ignored-patterns \
+      '^<->.<->.<->.<->' '127.0.0.<->'
+zstyle ':completion:*:(ssh|scp):*:users' ignored-patterns \
+      adm bin daemon halt lp named shutdown sync
+
+bindkey '^P' up-history
+bindkey '^N' down-history
+
+bindkey '^a' beginning-of-line
+bindkey '^e' end-of-line
+
+# backspace and ^h working even after
+# returning from command mode
+bindkey '^?' backward-delete-char
+bindkey '^h' backward-delete-char
+
+# ctrl-w removed word backwards
+bindkey '^w' backward-kill-word
+
+bindkey -M vicmd '/' history-incremental-pattern-search-backward
+bindkey -M vicmd '?' history-incremental-pattern-search-forward
+bindkey -M viins '^R' history-incremental-pattern-search-backward
+bindkey -M viins '^F' history-incremental-pattern-search-forward
+
+FIGNORE=".o:~"
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+LISTMAX=0
+LOGCHECK=300
+MAILCHECK=0
+REPORTTIME=60
+SAVEHIST=50000
+
+function replace()
+{
+  ack $1
+  read -q "REPLY?Are you sure? [y|N] "
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    ack -l $1 | xargs perl -pi -E 's/'$1'/'$2'/g'
+  fi
+}
+
+alias ary="cd $HOME/repos/ary_infra"
+alias bc="bc -l"
+alias rdns="getent hosts"
+alias mirror="wget --mirror --no-parent --convert-links"
+alias pass="gopass"
+alias grep='grep --color=tty -d skip'
+alias egrep='egrep --color=tty -d skip'
+alias cal=ccal
+alias -g L=' | less'
+alias -g WL=' | wc -l'
+alias -g WC=' | wc -c'
+alias tmux='TERM=screen-256color tmux'
+function cwhois(){ /usr/bin/whois -h whois.cymru.com " -v $1"}
+alias sha1sum='shasum'
+function og(){ grep -rn "$1" *}
+
+# https://news.ycombinator.com/item?id=986923e
+alias c='clear'
+alias r='reset'
+alias q='exit'
+alias cd..="cd .." # I often make this mistake
+alias ..='cd ..'
+alias ...='cd ../..'
+alias -- -="cd -"
+
+function ali() {
+  local alias_name="$1"
+  local alias_cmd="${@:2}"
+
+  if [[ -z "$alias_name" || -z "$alias_cmd" ]]; then
+    echo "Usage: ali <alias_name> <command>"
+    return 1
+  fi
+
+  if grep -q "^alias $alias_name=" ~/.zshrc 2>/dev/null; then
+    echo "Error: Alias '$alias_name' already exists in ~/.zshrc"
+    echo "Current definition: $(grep "^alias $alias_name=" ~/.zshrc)"
+    return 1
+  fi
+
+  echo "alias $alias_name='$alias_cmd'" >> ~/.zshrc
+  echo "✓ Added alias: $alias_name='$alias_cmd'"
+  source ~/.zshrc
+}
+
+function up {
+    if [[ "$#" < 1 ]] ; then
+        cd ..
+    else
+        CDSTR=""
+        for i in {1..$1} ; do
+            CDSTR="../$CDSTR"
+        done
+        cd $CDSTR
+    fi
+}
+
+alias m='more'
+function l(){ tree -L 1 -CDFahltS --duh $@ }
+function ll(){ l -L 2 $@; }
+function lll(){ l -L 3 $@; }
+
+alias serial="sudo screen /dev/tty.usbserial 9600"
+alias picocom='picocom -b 115200 --send-cmd "sx -vv" /dev/tty.usbserial'
+
+# gpg things
+alias gsearch='gpg --search-key'
+alias gpriv="export GNUPGHOME=$HOME/g"
+alias gnormal="export GNUPGHOME=$HOME/.gnupg"
+alias gkey='gpg --list-secret-keys -K'
+
+# search for the last process that started and kill it
+function rogue() {
+  ssh $1 'PROCESS='st-catcher.pl'; ST=$(ps -eo pid,etime,cmd --sort=etime | grep $PROCESS | grep -v grep) ; if [ $(echo $ST | wc -l) -gt 0 ] ; then echo sudo "kill" $(echo $ST | head -n 1| awk '{print $1}'); fi'
+}
+
+function brewup()
+{
+  brew update
+  brew upgrade
+  brew cleanup
+
+  # reinstall reattach-to-user-namespace for tmux support
+  brew reinstall reattach-to-user-namespace 2>/dev/null || true
+}
+
+function reinstall_mvim_ycm(){
+  cd ~/.vim/bundle/YouCompleteMe
+  ./install.py --clang-completer --omnisharp-completer --gocode-completer --tern-completer
+}
+
+function rproxy() {
+  ssh -L 127.0.0.1:8181:$2 -N root@$1
+}
+
+function sfproxy() {
+  #ssh -C2qTnN -D 8080 $1
+  ssh util-sf5.hosts.fastly.net+$@
+}
+
+function tarsshfile(){
+  echo "Copy to remote file with sudo"
+  echo "tar -cpf - ./reimage  | ssh fremont-11-s0 \"sudo tar -xpf - -C /usr/local/bin\""
+  echo "Usage: tarsshfile ./localfile bao@remotemachine /usr/local/remotefile
+  tar -cpf - $1  | ssh $2 "sudo tar -xpf - -C $3"
+}
+
+function tarsshdir(){
+  echo "Copy to remote dir with sudo"
+  echo "Usage: tarsshfile localdir bao@remotemachine /remotedir
+  tar -c -C $1  | ssh $2 "sudo tar -x --no-same-owner -C $3"
+}
+
+function tf() {terraform $@}
+
+function pssh() { xargs -P 5 -I {} ssh root@{} "$1" ; echo $1 }
+
+function sshi()
+{
+   echo $1 | awk -F'@' '{print $1}' | xargs ssh-keygen -R > /dev/null 2>&1
+   /usr/bin/ssh $@
+}
+
+alias logchef='log "chef"'
+
+# fe [FUZZY PATTERN] - Open the selected file with the default editor
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+function fe() {
+  IFS=''
+  local declare files=($(fzf-tmux --query="$1" --select-1 --exit-0))
+  [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
+  unset IFS
+}
+
+function awkmatchcompu() {
+ awk 'match($0,/^cache-[a-zA-Z]{3}([0-9]+)/,arr) {} arr[1] % 2 == 0 {print}'
+}
+
+function awkcsv() {
+  awk 'BEGIN { FS = "," } ; $5 == "$1" { print }'
+}
+
+function gfind() {
+  # http://stackoverflow.com/questions/2928584/how-to-grep-search-committed-code-in-the-git-history
+  git grep $@ $(git rev-list --all)
+}
+
+# fco - checkout git branch/tag
+function fco() {
+  local tags branches target
+  tags=$(
+    git tag | awk '{print "\x1b[31;1mtag\x1b[m\t" $1}') || return
+  branches=$(
+    git branch --all | grep -v HEAD             |
+    sed "s/.* //"    | sed "s#remotes/[^/]*/##" |
+    sort -u          | awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}') || return
+  target=$(
+    (echo "$tags"; echo "$branches") |
+    fzf-tmux -l30 -- --no-hscroll --ansi +m -d "\t" -n 2) || return
+  git checkout $(echo "$target" | awk '{print $2}')
+}
+
+# fd - cd to selected directory
+function fd() {
+  local dir
+  dir=$(find ${1:-*} -path '*/\.*' -prune \
+                  -o -type d -print 2> /dev/null | fzf +m) &&
+  cd "$dir"
+}
+
+# fkill -k kill process
+function fkill() {
+  pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+
+  if [ "x$pid" != "x" ]
+  then
+    kill -${1:-9} $pid
+  fi
+}
+
+# fdr - cd to selected parent directory
+function fdr() {
+  local declare dirs=()
+  get_parent_dirs() {
+    if [[ -d "${1}" ]]; then dirs+=("$1"); else return; fi
+    if [[ "${1}" == '/' ]]; then
+      for _dir in "${dirs[@]}"; do echo $_dir; done
+    else
+      get_parent_dirs $(dirname "$1")
+    fi
+  }
+  local DIR=$(get_parent_dirs $(realpath "${1:-$(pwd)}") | fzf-tmux --tac)
+  cd "$DIR"
+}
+
+function gcmed() {
+  git branch -d $(git branch --merged | egrep -v "master|develop|build|\*")
+}
+
+# fcs - get git commit sha
+# example usage: git rebase -i `fcs`
+function fcs() {
+  local commits commit
+  commits=$(git log --color=always --pretty=oneline --abbrev-commit --reverse) &&
+  commit=$(echo "$commits" | fzf --tac +s +m -e --ansi --reverse) &&
+  echo -n $(echo "$commit" | sed "s/ .*//")
+}
+
+# v - open files in ~/.viminfo
+function v() {
+  local files
+  files=$(grep '^>' ~/.viminfo | cut -c3- |
+          while read line; do
+            [ -f "${line/\~/$HOME}" ] && echo "$line"
+          done | fzf-tmux -d -m -q "$*" -1) && vim ${files//\~/$HOME}
+}
+
+# fstash - easier way to deal with stashes
+# type fstash to get a list of your stashes
+# enter shows you the contents of the stash
+# ctrl-d shows a diff of the stash against your current HEAD
+# ctrl-b checks the stash out as a branch, for easier merging
+function fstash() {
+  local out q k sha
+  while out=$(
+    git stash list --pretty="%C(yellow)%h %>(14)%Cgreen%cr %C(blue)%gs" |
+    fzf --ansi --no-sort --query="$q" --print-query \
+        --expect=ctrl-d,ctrl-b);
+  do
+    mapfile -t out <<< "$out"
+    q="${out[0]}"
+    k="${out[1]}"
+    sha="${out[-1]}"
+    sha="${sha%% *}"
+    [[ -z "$sha" ]] && continue
+    if [[ "$k" == 'ctrl-d' ]]; then
+      git diff $sha
+    elif [[ "$k" == 'ctrl-b' ]]; then
+      git stash branch "stash-$sha" $sha
+      break;
+    else
+      git stash show -p $sha
+    fi
+  done
+}
+
+# fs [FUZZY PATTERN] - Select selected tmux session
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+function fs() {
+  local session
+  session=$(tmux list-sessions -F "#{session_name}" | \
+    fzf --query="$1" --select-1 --exit-0) &&
+  tmux switch-client -t "$session"
+}
+
+# ftags - search ctags
+function ftags() {
+  local line
+  [ -e tags ] &&
+  line=$(
+    awk 'BEGIN { FS="\t" } !/^!/ {print toupper($4)"\t"$1"\t"$2"\t"$3}' tags |
+    cut -c1-80 | fzf --nth=1,2
+  ) && $EDITOR $(cut -f3 <<< "$line") -c "set nocst" \
+                                      -c "silent tag $(cut -f2 <<< "$line")"
+}
+
+# fh - repeat history
+fh() {
+  eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
+}
+
+function vs(){
+  #List all vagrant boxes available in the system including its status, and try to access the selected one via ssh
+  cd $(cat ~/.vagrant.d/data/machine-index/index | jq '.machines[] | {name, vagrantfile_path, state}' | jq '.name + "," + .state  + "," + .vagrantfile_path'| sed 's/^"\(.*\)"$/\1/'| column -s, -t | sort -rk 2 | fzf | awk '{print $3}'); vagrant ssh
+}
+
+function whatismyip() { curl ipecho.net/plain }
+
+function ami() { dig +short x86_64.ami.$@ TXT | xargs -I {} echo {} }
+
+function ruby-init()
+{
+  if test -z "$1" ; then
+    echo "Project name empty"
+  else
+    echo "gem install ore # unless already installed"
+    mine $1 --bundler --git --rspec
+  fi
+}
+
+function initgemset() { echo './.gems' > .rbenv-gemsets }
+
+function dot2png() { dot -Tpng $1 > $1.png }
+
+function dot2pdf() { dot -Tpdf $1 > $1.pdf }
+alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nate/dockviz"
+function jessie() {
+  DIR=${1:-$(pwd)}
+  docker run -it -v $DIR:/root/build bao/jessie:latest /bin/bash
+}
+
+function precise() {
+  DIR=${1:-$(pwd)}
+  docker run -it -v $DIR:/root/ precise-builder /bin/bash
+}
+
+function trusty() {
+  DIR=${1:-$(pwd)}
+  docker run -it -v $DIR:/root/ trusty-builder /bin/bash
+}
+
+function xenial() {
+  DIR=${1:-$(pwd)}
+  docker run -it -v $DIR:/root/ xenial-builder /bin/bash
+}
+
+function vmr()
+{
+    actual_exit_code=$?
+    set +e
+    vmd
+    vmu
+}
+function vmu()
+{
+    vagrant up $@
+}
+
+function vmd()
+{
+    vagrant destroy --force $@
+}
+
+function di()
+{
+  echo "aws ec2 describe-instances --instance-ids $1"
+  aws ec2 describe-instances --instance-ids $1
+}
+
+function nack() { vim -c "Nack $*" }
+
+function dsg()
+{
+  echo "make sure group-id is used"
+  echo "aws ec2 describe-security-groups --filters Name==group-name, Values=$1"
+  aws ec2 describe-security-groups --filters Name=group-name, Values="$1"
+}
+
+function asg()
+{
+  echo "aws ec2 authorize-security-group-ingress --group-id $1 --protocol tcp --port $2 --cidr $3"
+  aws ec2 authorize-security-group-ingress --group-id $1 --protocol tcp --port $2 --cidr $3 --region $4
+}
+
+# Show the path from a symlink to its ultimate source.
+function folsym() {
+  if [[ -e $1 || -h $1 ]]; then
+   file=$1
+  else
+   file=`which $1`
+  fi
+  if [[ -e $file || -L $file ]]; then
+    if [[ -L $file ]]; then
+       echo `ls -ld $file | perl -ane 'print $F[7]'` '->'
+       folsym `perl -le '$file = $ARGV[0];
+
+  ls
+  ls -ltra
+               $dest = readlink $file;
+               if ($dest !~ m{^/}) {
+              $file =~ s{(/?)[^/]*$}{$1$dest};
+               } else {
+              $file = $dest;
+               }
+               $file =~ s{/{2,}}{/}g;
+               while ($file =~ s{[^/]+/\.\./}{}) {
+              ;
+               }
+               $file =~ s{^(/\.\.)+}{};
+               print $file' $file`
+
+   else
+       ls -d $file
+   fi
+    else
+   echo $file
+    fi
+}
+
+# Remove useless files
+function clean () {
+  if [ "$1" = "-r" ]; then
+    find . \( -name '#*' -o -name '*~' -o -name '.*~' -o -name 'core*' \
+             -o -name 'dead*' \) -ok rm '{}' ';'
+  else
+    rm -i \#* *~ .*~ core* dead*
+  fi
+}
+
+#To print all IPv4 HTTP packets to and from port 80, i.e. print only packets that contain data, not, for example, SYN and FIN packets and    ACK-only packets.
+# alias dumphttp="tcpdump -i "$1" "$2" 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'"
+
+# http://blog.jasonantman.com/2010/04/dhcp-debugging-and-handy-tcpdump-filters/
+alias dumpdhcp="tcpdump -i "$1" "$2" '((port 67 or port 68)'"
+alias ss="ss -ieomn"
+alias tc="tc -s -d qdisc ls dev $1"
+alias ipcache="ip route flush table cache"
+
+function tcp_probe { modprobe tcp_probe port=$1 && cat /proc/net/tcpprobe >/tmp/data.out & }
+#[1]http://www.linuxfoundation.org/collaborate/workgroups/networking/tcpprobe
+# tcpdump -nnvvXSs 1514 -c2 icmp #grab payload (X) and packet size
+# tcpdump/tcptrace/xplot
+# tcpdump -i eth2 -s 100 -w /tmp/tcpdump.out host hostname
+# (or on solaris: snoop -s 100 -o /tmp/tcpdump.out dest host hostname )
+# tcptrace -Sl /tmp/tcpdump.out
+# xplot /tmp/a2b_tsg.xpl
+# function tcpread {tcpdump -lenxvvvttttnnr $1}
+# top talker tcpdump
+# tcpdump -tnn -c 200000 -i any -n dst port 80 | awk -F "." '{print $1"."$2"."$3"."$4}' | sort | uniq -c | sort -nr | awk ' $1 > 100 '
+#
+# GIT
+# NOTE: some alias here are git aliases, see .gitconfig for reference.
+function ga { git add ${@}}
+
+function uparista { tar cf - -C test . | ssh $1 'bash tar xf - -C test' }
+
+# https://ariejan.net/2009/10/26/how-to-create-and-apply-a-patch-with-git/
+function gpatch { git format-patch $1 --stdout > $2}
+
+# git stats https://github.com/arzzen/git-quick-stats/blob/master/git-quick-stats
+function grw { git log --no-merges --pretty=%an $* | head -n 100 | sort | uniq -c | sort -nr }
+function gcd { git log --no-merges --date=short --format='%ad' | sort | uniq -c }
+function gbr { git for-each-ref --sort=committerdate refs/heads/ --format='[%(authordate:relative)] %(color:blue) %(authorname) %(color:yellow)%(refname:short)%(color:reset)'}
+function gchl { git log --no-merges --pretty=format:"- %s%n%b" --since="$(git show -s --format=%ad `git rev-list --tags --max-count=1`)" }
+function gcm { git commit . -m "$@" }
+alias gc='git commit'
+alias gcp='git commit -p'
+alias gca='git commit --amend'
+alias gce='git commit --allow-empty'
+alias gm='git synced'
+alias gmm='git synced'
+alias gmr='git checkout main && git pull && git submodule foreach git pull origin main'
+alias d='git diff'
+alias gu='git pull'
+alias gp='git push origin HEAD'
+alias gpf='git push -f'
+function gnb { git checkout -b "$1" $2 }
+function gco { git checkout ${@} }
+function grb { git rebase -i origin $@ }
+#alias gb='git checkout -b "`whoami`/fix-`date +%Y%m%d`"'
+function gb() { git reflow start $@; echo "gr to pull request, then gd to merge"}
+function gr() { git reflow review $@}
+function gd() { git reflow deliver $@}
+alias gpp='git push origin HEAD && git pull-request'
+alias gs='git sum'
+alias g='git status -sb'
+# http://stackoverflow.com/questions/5188320/how-can-i-get-a-list-of-git-branches-ordered-by-most-recent-commit
+alias gbl='git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format="%(refname:short)"'
+
+function cs {
+  history | awk '{$1=""; print $0}' | fzf | sed 's/^ *//; s/ *$//' | xargs -r
+}
+
+function gic {
+  git branch | fzf | xargs -r git checkout
+}
+
+function cdf {
+  cd "$(ls -d */ | fzf)" || return
+}
+
+function fkill {
+  ps aux | fzf | awk '{print $2}' | xargs -r kill
+}
+
+function fport {
+  lsof -i -P -n | grep LISTEN | fzf | awk '{print $2}' | xargs -r sudo kill
+}
+
+function gitshow {
+  git log --oneline | fzf | awk '{print $1}' | xargs -r git show
+}
+
+
+# GIT with crypt
+function cryptinit() {
+  git-crypt init
+  touch .gitattributes
+  git add .gitattributes
+  git-crypt add-gpg-user D57E947A
+}
+
+function gitsyncmaster() {
+  git checkout master &&
+  git fetch origin &&
+  git pull origin master &&
+  git checkout $1 &&
+  git rebase master
+}
+
+alias lock="git-crypt lock"
+alias unlock="git-crypt unlock"
+function pet-select() {
+  BUFFER=$(pet search --query "$LBUFFER")
+  CURSOR=$#BUFFER
+  zle redisplay
+}
+zle -N pet-select
+stty -ixon
+bindkey '^s' pet-select
+
+function prev() {
+  PREV=$(fc -lrn | head -n 1)
+  sh -c "pet new `printf %q "$PREV"`"
+}
+
+function toptalker(){
+  ssh $1 'sudo tcpdump -n -i any -c 100000 -w tmp.pcap && curl -SOL https://gist.githubusercontent.com/sysbot/01cd0109b4126b9028bb/raw/eb013d75b7e7741daebe174d7546efe975973a7a/toptalker && bash toptalker && rm tmp.pcap'
+}
+
+function kra(){ knife exec -E 'nodes.find(:name => "'$1'").each { |n| n.run_list << "'$2'"; n.save }' }
+function kte(){ knife exec -E 'nodes.transform(:name => "'$1'" {|n| n.chef_environment("'$2'")}' }
+function kvc(){ knife vault create vault -J $1 }
+function kvs(){ knife vault show vault $1 -p $2 -F json }
+function kvr(){ knife vault refresh vault $1 }
+function kvu(){ knife vault update vault ${@} }
+
+function pan() {chef generate cookbook $1 -g ~/src/pan}
+function checksum() { shasum -a 256 $1 }
+
+alias ssh="assh wrapper ssh"
+alias gist='gist -c'
+alias reload='source $HOME/.zshrc'
+alias z='vi $HOME/.zshrc $HOME/.zprezto/runcoms/local_env'
+alias ze='vi $HOME/.zprezto/runcoms/local_env'
+alias a='vi $HOME/.zprezto/runcoms/local_aliases'
+alias as='source $HOME/.zprezto/runcoms/local_aliases'
+alias k='kubectl'
+alias kg='kubectl get'
+alias kd='kubectl describe'
+
+export EC2_URL="https://ec2.us-east-1.amazonaws.com"
+alias ec2useast1="export EC2_URL=https://ec2.us-east-1.amazonaws.com"
+alias ec2uswest2="export EC2_URL=https://ec2.us-west-2.amazonaws.com"
+alias ec2uswest1="export EC2_URL=https://ec2.us-west-1.amazonaws.com"
+alias ec2euwest1="export EC2_URL=https://ec2.eu-west-1.amazonaws.com"
+alias ec2apsoutheast1="export EC2_URL=https://ec2.ap-southeast-1.amazonaws.com"
+alias ec2apsoutheast2="export EC2_URL=https://ec2.ap-southeast-2.amazonaws.com"
+alias ec2apnortheast1="export EC2_URL=https://ec2.ap-northeast-1.amazonaws.com"
+alias ec2saeast1="export EC2_URL=https://ec2.sa-east-1.amazonaws.com"
+
+export AWS_DEFAULT_REGION=us-west-2
+alias ec2east='export AWS_DEFAULT_REGION=us-east-1'
+alias ec2eu='export AWS_DEFAULT_REGION=eu-west-1'
+alias ec2ap='export AWS_DEFAULT_REGION=ap-northeast-1'
+alias gen='pass pwgen -x --xs /'
+
+# calender
+export CALENDAR_FROM="bao@fastly.com"
+export CALENDAR_TO="ngqbao@gmail.com"
+alias gch="gcal --holiday-list --cc-holidays=us_ca"
+
+# random
+function vmstart() { vboxheadless --startvm $1 & }
+function h() { heroku ${@} }
+
+# fzf search
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# z integration (commented - file missing, use j() function with fzf instead)
+# [ -f $HOME/dotfiles/z/z.sh ] && . $HOME/dotfiles/z/z.sh
+
+function j() {
+  if [[ -z "$*" ]]; then
+    cd "$(_z -l 2>&1 | fzf +s --tac | sed 's/^[0-9,.]* *//')"
+  else
+    _last_z_args="$@"
+    _z "$@"
+  fi
+}
+
+function acopy {
+DIR=${1:-'tmp'}
+HOST=${2:-'127.0.0.1'}
+
+if ! test -d ./$DIR; then
+   echo "$DIR doesn't exist" ; exit 1
+fi
+
+tar cf - -C $DIR . | ssh $HOST 'enable
+bash tar xf - -C ./ '
+}
+
+function jj() {
+  cd "$(_z -l 2>&1 | sed 's/^[0-9,.]* *//' | fzf -q $_last_z_args)"
+}
+
+alias pi='ssh bao@192.168.1.195'
+
+# aliases
+if [[ -e "${ZDOTDIR:-$HOME}/.zprezto/runcoms/local_aliases" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/runcoms/local_aliases"
+fi
+
+# rfc mirror
+func rfc() {
+  pushd ; cd ~/repos
+  rsync -avz --delete ftp.rfc-editor.org::rfcs-text-only rfc-mirror
+  popd
+}
+
+func readline(){
+cat << EndOfMessage
+C-d: delete a character (under cursor)
+C-f: move cursor forward (→)
+C-b: move cursor backward (←)
+C-k: kill the line after the cursor, add to clipboard
+C-u: kill the line before the cursor, add to clipboard
+C-y: paste from the clipboard
+A-b: move cursor back one word
+A-f: move cursor forward one word
+C-w, delete back a word
+C-x, C-e: open editor for long commands
+[1] http://readline.kablamo.org/emacs.html
+EndOfMessage
+}
+
+pdf() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+     /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --headless --disable-gpu --print-to-pdf="$1.pdf" $2
+     mv $1.pdf ~/Google\ Drive/web_pdfs/
+     open "~/Google\ Drive/web_pdfs/$1"
+  else
+    chrome --headless --disable-gpu --print-to-pdf='\$1.pdf' '\$2'
+  fi
+}
+
+mldcs(){
+  pdsh -t 5 -u 5 -w mldcs $@
+}
+
+
+credstash(){
+echo "alias to gcredstash"
+export AWS_REGION=us-west-2
+gcredstash $@
+}
+
+lsofnet(){
+  lsof -Pnl +M -i4 $@
+}
+
+saltup(){
+  git tag stable -f
+  git push --tag -f
+}
+
+artifactor_unlock_user(){
+  curl -uadmin:TQ3If6GTTO-RRXy1VcA6Sw -XPOST "https://caffeinetv.jfrog.io/artifactory/api/security/unlockUsers/cdn-deploy"
+}
+
+dexec(){
+  docker exec -it $(docker ps --format "{{.ID}}" -f name=$1) /bin/bash -c 'cd /work && TERM=$TERM /bin/bash'
+}
+
+
+nvlog(){
+   ssh $1 'echo "YesIAuthorize" | sudo -S zcat /tmp/nvpm-logs/$(echo "YesIAuthorize" | sudo -S ls -Art /tmp/nvpm-logs/ | tail -n 1)'
+}
+
+dclog(){
+   ssh $1 'echo "YesIAuthorize" | sudo -S cat /var/log/dcs-health-check.log'
+}
+
+dccheck(){
+   ssh $1 'echo "YesIAuthorize" | sudo -S /var/lib/dcs-health-check/dcs-nvpm-check.sh'
+}
+
+slog(){
+   ssh $1 'echo "YesIAuthorize" | sudo -S cat $2'
+}
+
+srun(){
+   ssh $1 'echo "YesIAuthorize" | sudo -S $2'
+}
+
+sr(){
+   ssh $1 'echo "YesIAuthorize" | sudo -S sysctl -a | grep "rp_filter = 1"'
+}
+
+# nvidia
+# https://archives.nvda.ai/nucleus/docs/src/docs/avdc-operations/sjc4-cluster-access.html#roles
+
+nkdev1(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  local host=maglev-dev1-sjc4.nonprod-nvkong.com
+  local config=~/.kube/$host.config
+  nvinit k8s \
+    -secret-file ~/.nb \
+    -user baon \
+    -passcode $1 \
+    -vault-role pki-k8s-usercert/issue/maglev-dev-admins \
+    && vault-kubeconfig-gen.sh $host $config \
+    && export KUBECONFIG=$config
+}
+
+nkstg(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  local host=maglev-stg0-sjc4.nonprod-nvkong.com
+  local config=~/.kube/$host.config
+  nvinit k8s \
+    -secret-file ~/.nb \
+    -user baon \
+    -vault-role pki-k8s-usercert/issue/maglev-dev-admins \
+    -passcode $1 \
+    && vault-kubeconfig-gen.sh $host $config \
+    && export KUBECONFIG=$config
+}
+
+nkcny(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  local host=maglev-cny0-sjc4.nvk8s.com
+  local config=~/.kube/$host.config
+  nvinit k8s \
+    -secret-file ~/.nb \
+    -user baon \
+    -passcode $1 \
+    -vault-role pki-k8s-usercert/issue/maglev-prod-admins \
+    && vault-kubeconfig-gen.sh $host $config \
+    && export KUBECONFIG=$config
+
+}
+
+nkqua(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  local host=maglev-qual0-sjc4.nonprod-nvkong.com
+  local config=~/.kube/$host.config
+  nvinit k8s \
+    -secret-file ~/.nb \
+    -user baon \
+    -passcode $1 \
+    -vault-role pki-k8s-usercert/issue/maglev-prod-admins \
+    && vault-kubeconfig-gen.sh $host $config \
+    && export KUBECONFIG=$config
+}
+
+# vault namespace admin
+nvprod(){
+  echo "using maglev namespace"
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=maglev
+  vault login \
+    -method=ldap \
+    username=baon \
+    password=`pass -o nvidiaad` \
+    passcode=$1
+}
+
+nvstg(){
+  export VAULT_ADDR=https://stg.vault.nvidia.com
+  export VAULT_NAMESPACE=maglev
+  vault login \
+    -method=ldap \
+    username=baon \
+    password=`pass -o nvidiaad` \
+    passcode=$1
+}
+
+# maglev vault admin only
+nvnprod(){
+  echo "using ngc namespace"
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  vault login \
+    -method=ldap \
+    username=baon \
+    password=`pass -o nvidiaad` \
+    passcode=$1
+}
+
+nvnstg(){
+  export VAULT_ADDR=https://stg.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  vault login \
+    -method=ldap \
+    username=baon \
+    password=`pass -o nvidiaad` \
+    passcode=$1
+}
+
+# aws access
+# https://archives.nvda.ai/nucleus/docs/src/docs/avdc-operations/aws-access.html#aws-accounts-and-dls
+na(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  aws-creds \
+    --user baon \
+    --password=`pass -o nvidiaad` \
+    --passcode=$1
+}
+
+nastgndas(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  aws-creds \
+    --user baon \
+    --password=`pass -o nvidiaad` \
+    --passcode=$1 \
+    --aws-account=ndas-infra-stage \
+    --aws-role=AWSOS-AD-Admin
+  local host=$(aws eks describe-cluster --region=us-west-2 --name=stage | jq .cluster.endpoint)
+  local cert=$(aws eks describe-cluster --region=us-west-2 --name=stage | jq .cluster.certificateAuthority.data)
+  # clean config files to not have http*
+  local config=~/.kube/$(echo $host | awk -F'//' '{print $2}').config
+  export KUBECONFIG=$config
+  aws eks update-kubeconfig --region "us-west-2" --name stage
+  # vault-kubeconfig-gen.sh "$host" \
+  #   $config \
+  #   "443" \
+  #   "$cert" \
+  #   && export KUBECONFIG=$config
+}
+
+naprodndas(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  aws-creds \
+    --user baon \
+    --password=`pass -o nvidiaad` \
+    --passcode=$1 \
+    --aws-account=ndas-infra \
+    --aws-role=AWSOS-AD-Admin
+  local host=$(aws eks describe-cluster --region=us-west-2 --name=prod | jq .cluster.endpoint)
+  local cert=$(aws eks describe-cluster --region=us-west-2 --name=prod | jq .cluster.certificateAuthority.data)
+  # clean config files to not have http*
+  local config=~/.kube/$(echo $host | awk -F'//' '{print $2}').config
+  export KUBECONFIG=$config
+  aws eks update-kubeconfig --region "us-west-2" --name prod
+
+  # vault-kubeconfig-gen.sh "$host" \
+  #   $config \
+  #   "443" \
+  #   "$cert" \
+  #   && export KUBECONFIG=$config
+}
+
+naprod(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  aws-creds \
+    --user baon \
+    --password=`pass -o nvidiaad` \
+    --passcode=$1 \
+    --aws-account=ai-infra-aws-wild-west \
+    --aws-role=AI-Infra-SSO-PowerUser
+}
+
+nadev(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  aws-creds \
+    --user baon \
+    --password=`pass -o nvidiaad` \
+    --passcode=$1 \
+    --aws-account=ai-infra-westworld \
+    --aws-role=AWSOS-AD-Admin
+}
+
+nsdev(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  nvinit ssh \
+    -secret-file ~/.nb \
+    -user baon \
+    -vault-role sshca-usercert/issue/maglev-dev-admins
+}
+
+nscny(){
+  export VAULT_ADDR=https://prod.vault.nvidia.com
+  export VAULT_NAMESPACE=ngc
+  nvinit ssh \
+    -secret-file ~/.nb \
+    -user baon \
+    -vault-role sshca-usercert/issue/maglev
+}
+
+alias knfd='kubectl get no -o json | jq ".items[].metadata.labels"'
+alias knps='kubectl get pods --all-namespaces -o wide --sort-by="{.spec.nodeName}"'
+
+knpn(){
+  # get pods from node
+  local node={1:-mldcs1051p}
+  kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=$node
+}
+
+nvstg(){
+  export VAULT_ADDR=https://stg.vault.nvidia.com
+  export VAULT_NAMESPACE=maglev
+  vault login -method=ldap username=baon password=`pass -o nvidiaad` passcode=$1
+}
+
+
+# mc ticket, can't login (cordon, mc, ping slack)
+# mc ticket, image machine name
+# mc ticket, hardware failure, investigate (cordon, mc, ping slack)
+# ngcsupport, ticket to scaleup/down]
+# msre ticket, task
+# msre ticket, link to dc or mc ticket
+# msre ticket, cordon/uncordon, look at, update spreadsheet
+jlink(){
+  jira issuelink $1 blocks $2
+}
+
+jmc(){
+  jira create \
+    --project NSVIS \
+    --browse \
+    --template create \
+    --noedit \
+    --override issuetype=Task \
+    --override summary=$1 \
+    --override description=$2 \
+}
+jngc(){
+  jira create \
+    --project NGCSUPPORT \
+    --browse \
+    --template create \
+    --noedit \
+    --override issuetype=Story \
+    --override summary=$1 \
+    --override description=$2 \
+    --override assignee="kganesan"
+}
+
+jme(){
+  jira create \
+    --project MSRE \
+    --browse \
+    --template create \
+    --noedit \
+    --override issuetype=Story \
+    --override summary=$1 \
+    --override description=$2 \
+    --override assignee="baon"
+}
+
+# dc ticket, reboot (cordon, dc)
+jdc(){
+  jira create \
+    --project NSVH \
+    --browse \
+    --template create \
+    --noedit \
+    --override issuetype=Task \
+    --override priority=High \
+    --override summary=$1 \
+    --override description=$2 \
+    --override assignee="mludlow"
+}
+
+
+alias mk='minikube'
+# https://docs.google.com/document/d/1RVfwdRwzTLGvV1PBxluY86xi5fbHA6TgAuiMcqiu6Kc/edit#
+# reverse proxy from DC to gitlab
+# nvinit ssh -user <user-id> -vault-role sshca-usercert/issue/ngc-egx
+
+# [4] Setup a reverse open proxy to corp to access git:
+# ssh -A -R 127.0.0.1:2222 -i  ~/.ssh/id_rsa  bouncer@<target_ip>
+
+# [a] ssh -A -R 127.0.0.1:12051:gitlab-master.nvidia.com:12051 bouncer@target-hostname
+
+# # through SJC4 Jumpbox
+# [b] ssh -A -R 127.0.0.1:12051:gitlab-master.nvidia.com:12051 -o "ProxyCommand  ssh bouncer@24.51.7.3 nc %h %p" bouncer@target-hostip
+
+# Defer ssh-add to background for faster startup
+(ssh-add --apple-use-keychain ~/.ssh/key_nvidia_2 -q &) 2>/dev/null
+
+# Lazy load vault completion (saves ~2-3ms)
+if command -v vault &> /dev/null; then
+  vault() {
+    unfunction vault 2>/dev/null
+    autoload -U +X bashcompinit && bashcompinit
+    complete -o nospace -C /usr/local/bin/vault vault
+    command vault "$@"
+  }
+fi
+
+export GOCACHE=~/n/.gocache
+export TEST_TMPDIR=~/n/.bazel
+
+# Lazy load ghcup (only load when haskell tools needed)
+if [ -f ${HOME}/.ghcup/env ]; then
+  ghcup() {
+    unfunction ghcup ghc cabal stack 2>/dev/null
+    source ${HOME}/.ghcup/env
+    command ghcup "$@"
+  }
+  ghc() { ghcup --version &>/dev/null && command ghc "$@"; }
+  cabal() { ghcup --version &>/dev/null && command cabal "$@"; }
+  stack() { ghcup --version &>/dev/null && command stack "$@"; }
+fi
+export PATH="/opt/homebrew/opt/curl/bin:$PATH"
+
+# textra
+export TEXTRA_INSTALL="$HOME/.textra"
+export PATH="$TEXTRA_INSTALL/bin:$PATH"
+export MODULAR_HOME="/Users/bao/.modular"
+export PATH="/Users/bao/.modular/pkg/packages.modular.com_mojo/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/Users/bao/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+
+# open audible
+export OPENAUDIBLE_HOME="/Volumes/2TB/OpenAudible"
+
+# ollama
+export OLLAMA_HOME="/Volumes/2TB/ollama"
+
+# Lazy load mise for faster startup (saves ~13ms)
+if command -v mise &> /dev/null; then
+  export MISE_DATA_DIR="${MISE_DATA_DIR:-$HOME/.local/share/mise}"
+  export PATH="$MISE_DATA_DIR/shims:$PATH"
+
+  # Only fully activate mise on first use
+  _mise_lazy_load() {
+    unfunction mise 2>/dev/null
+    eval "$(command mise activate zsh)"
+    mise "$@"
+  }
+  mise() { _mise_lazy_load "$@"; }
+fi
+
+fssh() {
+    if [[ $# -eq 0 ]]; then
+        local root_dir=~/n/maglev-infra/ansible/inventory
+        local host_line host
+
+        host_line=$(find "$root_dir" -type f -name "*hosts*" \
+            -exec awk -v f="{}" '{for(i=1;i<=NF;i++) if($i ~ /ansible_host=/) print f ":" $i}' {} + \
+            | sort -u \
+            | fzf --height 40% --prompt="ssh > ")
+
+        if [[ -n "$host_line" ]]; then
+            host=$(echo "$host_line" | cut -d= -f2)
+            command ssh "$host"
+        fi
+    else
+        command ssh "$*"
+    fi
+}
+
+_ssh_fzf_complete() {
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ "$cur" == "" ]]; then
+        return 0
+    fi
+
+    local root_dir=~/n/maglev-infra/ansible/inventory
+
+    local host=$(find "$root_dir" -type f -name "*hosts*" \
+        -exec grep -oE 'ansible_host=[^ ]+' {} + \
+        | cut -d= -f2 \
+        | sort -u \
+        | fzf --prompt="ssh > " --select-1 --exit-0)
+
+    if [[ -n "$host" ]]; then
+        COMPREPLY=("$host")
+    fi
+}
+
+zle -N _fzf_ssh_complete
+
+# SOPS age key location
+export SOPS_AGE_KEY_FILE=$HOME/.config/sops/age/keys.txt
+export PATH="$HOME/.local/bin:$PATH"

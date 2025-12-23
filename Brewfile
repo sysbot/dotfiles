@@ -1,204 +1,196 @@
-brew 'ack'
-brew 'autoconf'
-brew 'autoconf-archive'
-brew 'autoenv'
-brew 'automake'
-brew 'autossh'
-brew 'awscli'
-brew 'bash'
-brew 'bdw-gc'
-brew 'bfg'
-brew 'binutils'
-brew 'boost'
-brew 'borgbackup'
-brew 'cairo'
-brew 'ccal'
-brew 'choppsv1/term24/tmux'
-brew 'chruby'
-brew 'cmake'
+# Brewfile - Full installation
+# Updated: December 2025
+# Note: Removed deprecated homebrew/dupes, homebrew/science, homebrew/versions taps
+# Note: Removed deprecated 'args: with-*' syntax (Homebrew no longer supports these)
+
+# =============================================================================
+# Core utilities
+# =============================================================================
 brew 'coreutils'
-brew 'ctags'
-brew 'curl'
-tap 'railwaycat/emacsmacport'
-brew 'emacs-mac'
-brew 'direnv'
-brew 'dirmngr'
-brew 'dnsmasq'
-brew 'elinks'
-brew 'entr'
-brew 'ffmpeg', args: ['with-fontconfig', 'with-freetype', 'with-libmodplug', 'with-librsvg', 'with-libssh', 'with-libvorbis', 'with-libvpx', 'with-openh264', 'with-openjpeg', 'with-opus', 'with-rtmpdump', 'with-sdl2', 'with-tools', 'with-wavpack', 'with-webp', 'with-x265', 'with-xz']
 brew 'findutils'
-brew 'flac'
-brew 'fontconfig'
-brew 'freetype'
-brew 'freexl'
-brew 'gawk'
-brew 'gcal'
-brew 'gcc'
-brew 'gdal'
-brew 'gdb', args: ['with-python']
-brew 'gdbm'
-brew 'gdk-pixbuf'
-brew 'geos'
-brew 'gettext'
-brew 'giflib'
-brew 'git'
-brew 'git-crypt'
-brew 'glib'
-brew 'glide'
-brew 'gmime'
-brew 'gmp'
-brew 'gnu-indent'
 brew 'gnu-sed'
 brew 'gnu-tar'
 brew 'gnu-which'
-brew 'gnupg2'
-brew 'gnutls'
-brew 'go'
-brew 'gobject-introspection'
-brew 'graphviz'
-brew 'harfbuzz'
-brew 'homebrew/dupes/diffutils'
-brew 'homebrew/dupes/ed'
-brew 'homebrew/dupes/file-formula'
-brew 'homebrew/dupes/gpatch'
-brew 'homebrew/dupes/grep'
-brew 'homebrew/dupes/gzip'
-brew 'homebrew/dupes/less', args: ['with-pcre']
-brew 'homebrew/dupes/m4'
-brew 'homebrew/dupes/make'
-brew 'homebrew/dupes/openssh'
-brew 'homebrew/dupes/rsync'
-brew 'homebrew/dupes/unzip'
-brew 'homebrew/science/r'
-brew 'homebrew/versions/perl518'
-brew 'htop-osx'
-brew 'httpie'
+brew 'gnu-indent'
+brew 'gawk'
+
+# Shell
+brew 'bash'
+brew 'zsh'
+
+# =============================================================================
+# Version control & Git
+# =============================================================================
+brew 'git'
+brew 'git-crypt'
 brew 'hub'
-brew 'hybridgroup/tools/gort'
-brew 'icu4c'
-brew 'imagemagick'
-brew 'io'
-brew 'isl'
-brew 'ispell'
-brew 'isync'
-brew 'jpeg'
-brew 'jq'
-brew 'json-c'
-brew 'justwatchcom/gopass/gopass'
-brew 'lame'
-brew 'leiningen'
-brew 'libassuan'
-brew 'libcroco'
-brew 'libev'
-brew 'libevent'
-brew 'libffi'
-brew 'libgcrypt'
-brew 'libgeotiff'
-brew 'libgpg-error'
-brew 'libksba'
-brew 'liblwgeom'
-brew 'libmagic'
-brew 'libmpc'
-brew 'libogg'
-brew 'libpng'
-brew 'librsvg'
-brew 'libsndfile'
-brew 'libspatialite'
-brew 'libsvg'
-brew 'libtasn1'
-brew 'libtiff'
+brew 'tig'
+brew 'bfg'
+
+# =============================================================================
+# Build tools & compilers
+# =============================================================================
+brew 'autoconf'
+brew 'autoconf-archive'
+brew 'automake'
+brew 'cmake'
+brew 'gcc'
 brew 'libtool'
-brew 'libunistring'
-brew 'libusb'
-brew 'libusb-compat'
-brew 'libvorbis'
-brew 'libxml2'
-brew 'libyaml'
-brew 'libyubikey'
-brew 'links'
-brew 'lua'
-brew 'luajit'
-brew 'lzip'
-brew 'lzlib'
-brew 'mpfr'
-brew 'msmtp'
-brew 'mu', args: ['HEAD', 'with-emacs']
-brew 'mutt', args: ['with-s-lang']
-brew 'nettle'
-brew 'nmap'
-brew 'node'
-brew 'notmuch', args: ['with-ruby']
-brew 'offlineimap'
-brew 'oniguruma'
-brew 'openssl'
-brew 'ossp-uuid'
-brew 'peco'
-brew 'p11-kit'
-brew 'p7zip'
-brew 'pandoc'
-brew 'pango'
-brew 'pcre'
-brew 'perl'
-brew 'phantomjs'
-brew 'pinentry'
-brew 'pixman'
 brew 'pkg-config'
-brew 'pow'
-brew 'proctools'
-brew 'proj'
-brew 'proxychains-ng'
-brew 'pstree'
-brew 'pth'
+
+# =============================================================================
+# Languages & runtimes
+# =============================================================================
 brew 'python'
 brew 'python3'
-brew 'rclone'
-brew 'readline'
-brew 'reattach-to-user-namespace'
+brew 'go'
 brew 'ruby'
 brew 'ruby-install'
+brew 'chruby'
+brew 'node'
 brew 'rust'
-brew 's-lang'
-brew 's3cmd'
-brew 'shared-mime-info'
-brew 'source-highlight'
-brew 'sqlite'
-brew 'sysbot/tap/noms'
-brew 'talloc'
-brew 'terminal-notifier'
-brew 'terraform'
+brew 'perl'
+brew 'lua'
+brew 'luajit'
+
+# =============================================================================
+# Security & encryption
+# =============================================================================
+brew 'gnupg'
+brew 'openssl'
+brew 'pinentry'
+brew 'libyubikey'
+brew 'ykpers'
+
+# =============================================================================
+# Networking & web
+# =============================================================================
+brew 'curl'
+brew 'wget'
+brew 'autossh'
+brew 'nmap'
+brew 'httpie'
+brew 'links'
+brew 'w3m'
+
+# =============================================================================
+# Search & navigation
+# =============================================================================
+brew 'ack'
 brew 'the_silver_searcher'
-brew 'tig'
-brew 'tokyo-cabinet'
 brew 'tree'
+brew 'pstree'
+brew 'htop'
+brew 'peco'
+
+# =============================================================================
+# Cloud & infrastructure
+# =============================================================================
+brew 'awscli'
+brew 's3cmd'
+brew 'rclone'
+brew 'terraform'
+
+# =============================================================================
+# Text processing & editing
+# =============================================================================
+brew 'jq'
+brew 'pandoc'
+brew 'ispell'
+brew 'ctags'
+
+# =============================================================================
+# Media & graphics
+# =============================================================================
+brew 'ffmpeg'
+brew 'imagemagick'
+brew 'graphviz'
+
+# =============================================================================
+# Email & communication
+# =============================================================================
+brew 'msmtp'
+brew 'isync'
+brew 'mutt'
+brew 'mu'
+brew 'notmuch'
+brew 'weechat'
+brew 'halloy'  # modern IRC client
+
+# =============================================================================
+# Terminal & multiplexing
+# =============================================================================
+brew 'tmux'
+brew 'reattach-to-user-namespace'
+brew 'terminal-notifier'
+
+# =============================================================================
+# Development utilities
+# =============================================================================
+brew 'direnv'
+brew 'entr'
+brew 'watch'
+
+# =============================================================================
+# Archiving & compression
+# =============================================================================
 brew 'unar'
 brew 'unrar'
-brew 'urlview'
-brew 'w3m'
-brew 'watch'
-brew 'wdiff', args: ['with-gettext']
-brew 'weechat', args: ['with-perl', 'with-python']
-brew 'wget'
-brew 'x264'
-brew 'xapian'
-brew 'xvid'
 brew 'xz'
-brew 'yajl'
-brew 'ykpers'
-brew 'zsh', args: ['without-etcdir']
-cask 'airflow'
-cask 'grandperspective'
+brew 'p7zip'
+brew 'lzip'
+
+# =============================================================================
+# Libraries (dependencies, may auto-install)
+# =============================================================================
+brew 'readline'
+brew 'libpng'
+brew 'freetype'
+brew 'fontconfig'
+brew 'gettext'
+brew 'libffi'
+brew 'glib'
+brew 'binutils'
+brew 'sqlite'
+brew 'libyaml'
+brew 'libxml2'
+brew 'pcre'
+brew 'oniguruma'
+
+# =============================================================================
+# DNS & networking tools
+# =============================================================================
+brew 'dnsmasq'
+brew 'proxychains-ng'
+
+# =============================================================================
+# Backup
+# =============================================================================
+brew 'borgbackup'
+
+# =============================================================================
+# Password management
+# =============================================================================
+brew 'gopass'
+
+# =============================================================================
+# Casks (GUI applications)
+# =============================================================================
 cask 'docker'
-cask 'electrum'
 cask 'google-cloud-sdk'
 cask 'google-drive'
 cask 'libreoffice'
-cask 'openscad'
-cask 'rstudio'
 cask 'spotify'
 cask 'transmission'
-cask 'vagrant'
-cask 'virtualbox'
 cask 'vlc'
 cask 'wireshark'
-cask 'yed'
+
+# Optional casks (uncomment if needed)
+# cask 'vagrant'
+# cask 'virtualbox'
+# cask 'electrum'
+# cask 'openscad'
+# cask 'rstudio'
+# cask 'yed'
+# cask 'grandperspective'
+# cask 'airflow'

@@ -1,0 +1,72 @@
+# Brewfile.base - Essential tools for minimal setup
+# Updated: December 2025
+
+# Core utilities
+brew 'coreutils'
+brew 'findutils'
+brew 'gnu-sed'
+brew 'gnu-tar'
+brew 'gnu-which'
+brew 'gnu-indent'
+
+# Shell
+brew 'bash'
+brew 'zsh'
+
+# Version control
+brew 'git'
+brew 'git-crypt'
+brew 'hub'
+brew 'tig'
+
+# Build tools
+brew 'autoconf'
+brew 'autoconf-archive'
+brew 'automake'
+brew 'cmake'
+brew 'gcc'
+
+# Languages
+brew 'python'
+brew 'go'
+brew 'ruby'
+brew 'ruby-install'
+brew 'chruby'
+
+# Security
+brew 'gnupg'
+brew 'openssl'
+
+# Networking
+brew 'curl'
+brew 'wget'
+brew 'autossh'
+brew 'nmap'
+brew 'httpie'
+
+# Search & navigation
+brew 'ack'
+brew 'the_silver_searcher'
+brew 'tree'
+brew 'pstree'
+brew 'htop'
+
+# Cloud
+brew 'awscli'
+brew 's3cmd'
+
+# Utilities
+brew 'jq'
+brew 'unar'
+brew 'unrar'
+brew 'xz'
+brew 'readline'
+
+# Dependencies (auto-installed but listing for clarity)
+brew 'libpng'
+brew 'freetype'
+brew 'fontconfig'
+brew 'gettext'
+brew 'libffi'
+brew 'glib'
+brew 'binutils'

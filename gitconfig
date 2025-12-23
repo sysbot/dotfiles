@@ -19,10 +19,6 @@
 [push]
   default = upstream
 
-[core]
-  whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
-  editor = mvim  -v
-
 [color "diff"]
   whitespace = red reverse
 
@@ -41,6 +37,16 @@
   ui = true
   pager = true
 
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true  # use n and N to move between diff sections
+  dark = true      # or light = true, or omit for auto-detection
+
+[merge]
+  conflictstyle = zdiff3
+
 [pack]
   threads = 0
 	useSparse = true
@@ -49,7 +55,9 @@
   limit = 0
 
 [core]
-  pager = less -FRSX
+  whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+  editor = mvim  -v
+  pager = delta
 	excludesfile = /Users/bao/.gitignore
   #editor = subl -n -w
   editor = emacsclient
@@ -172,8 +180,7 @@
 	user = sysbot
   site = https://github.com
   endpoint = https://api.github.com
-	oauth-token = 5e6570f6ff174bf571432ff0d01d74af23457685
-  # e9b8c990b65556daa0e50ed8d4a2824934137e46
+  # oauth-token removed - use `gh auth login` or credential helper instead
 
 [diff]
   # Git diff will use (i)ndex, (w)ork tree, (c)ommit and (o)bject
@@ -206,3 +213,7 @@
 	user = sysbot
 [github "github.com"]
 	user = sysbot
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
