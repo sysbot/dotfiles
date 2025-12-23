@@ -1,5 +1,5 @@
-[submodule "prezto"]
-	path = prezto
+[submodule "dotzprezto"]
+	path = dotzprezto
 	url = git@github.com:sysbot/prezto.git
 [submodule "dotmutt"]
 	path = dotmutt
@@ -7,3 +7,6 @@
 [submodule "dotssh"]
 	path = dotssh
 	url = git@github.com:sysbot/dotssh.git
+[submodule "dotpassword-store"]
+	path = dotpassword-store
+	url = git@github.com:sysbot/secrets.git
