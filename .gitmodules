@@ -1,6 +1,3 @@
-[submodule "dotzprezto"]
-	path = dotzprezto
-	url = git@github.com:sysbot/prezto.git
 [submodule "dotmutt"]
 	path = dotmutt
 	url = git@github.com:sysbot/dotmutt
