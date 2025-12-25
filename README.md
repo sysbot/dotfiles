@@ -1,123 +1,173 @@
 # Dotfiles
 
-Personal configuration files for macOS.
+Personal configuration files managed by **Nix Home Manager**.
 
 ## Quick Start
 
+### Prerequisites
+
+1. Install Nix:
 ```bash
-# Clone the repository
-git clone --recursive git@github.com:sysbot/dotfiles.git ~/dotfiles
+curl -L https://nixos.org/nix/install | sh
+```
+
+2. Enable flakes (add to `~/.config/nix/nix.conf`):
+```
+experimental-features = nix-command flakes
+```
+
+### Installation
+
+**Option 1: Home Manager standalone** (simpler)
+```bash
 cd ~/dotfiles
-
-# Minimal installation (shell, git, basic tools)
-make base
-
-# Full installation (everything)
-make full
-
-# Just XDG config apps (ghostty, kitty, zed)
-make config
-
-# Health check
-make doctor
+nix run home-manager -- switch --flake .#bao
 ```
 
-## What's Included
+**Option 2: nix-darwin + Home Manager** (full macOS integration)
+```bash
+cd ~/dotfiles
+nix run nix-darwin -- switch --flake .#macbook
+```
 
-### Shell
-- **Prezto** - Zsh configuration framework
-- Custom `.zshrc` with functions and aliases
+### Daily Usage
 
-### Development
-- Git configuration with extensive aliases
-- Tig (git TUI)
-- Tmux configuration
+```bash
+# Apply configuration changes
+home-manager switch --flake ~/dotfiles
 
-### XDG Config Apps
-- **Ghostty** - Terminal emulator
-- **Kitty** - Terminal emulator
-- **Zed** - Editor
+# Or with nix-darwin
+darwin-rebuild switch --flake ~/dotfiles
 
-### Communication
-- Mutt/mu4e (email)
-- Weechat (IRC)
+# Update flake inputs
+nix flake update
 
-### Security
-- GPG/Yubikey integration
-- git-crypt for encrypted directories
+# Check what would change
+home-manager build --flake ~/dotfiles
+```
 
-## Directory Structure
+## Structure
 
 ```
-dotfiles/
-├── Brewfile          # Full Homebrew packages
-├── Brewfile.base     # Essential packages only
-├── Makefile          # Installation orchestration
-├── dotconfig/        # XDG config apps
+~/dotfiles/
+├── flake.nix           # Flake entry point with inputs
+├── flake.lock          # Pinned dependencies
+├── home.nix            # Main Home Manager configuration
+├── darwin.nix          # macOS system configuration (nix-darwin)
+├── modules/
+│   ├── packages.nix    # All packages (replaces Brewfile)
+│   ├── shell.nix       # Zsh + Prezto + tools
+│   ├── git.nix         # Git configuration
+│   ├── tmux.nix        # Tmux configuration
+│   └── terminals.nix   # Kitty, Alacritty
+├── dotconfig/          # Raw config files
 │   ├── ghostty/
-│   ├── kitty/
 │   └── zed/
-├── dotzprezto/       # Zsh framework (submodule)
-├── dotssh/           # SSH config (encrypted)
-├── dotsec/           # Secrets (encrypted)
-├── dotmutt/          # Email config (submodule)
-├── dotweechat/       # IRC config (submodule)
-└── gitconfig         # Git configuration
+└── secrets/            # Encrypted (git-crypt)
+    ├── dotssh/
+    └── dotpassword-store/
 ```
 
-## Make Targets
+## What's Managed
 
-| Target | Description |
-|--------|-------------|
-| `make base` | Minimal: Homebrew base + shell + git |
-| `make full` | Everything including encrypted dirs |
-| `make config` | XDG apps (ghostty, kitty, zed) |
-| `make doctor` | Health check for symlinks/submodules |
-| `make brewbase` | Install base Homebrew packages |
-| `make brewfile` | Install full Homebrew packages |
-| `make doom` | Install Doom Emacs |
-| `make clean` | Remove symlinks |
-| `make help` | Show all targets |
+### Packages (via Nix)
+- Core: coreutils, findutils, gnused, gnumake
+- Shell: zsh, bash, starship, fzf, zoxide
+- Dev: git, gh, delta, ripgrep, fd, jq
+- Languages: python, go, rust, node, ruby
+- Cloud: awscli, terraform, kubectl
+- Media: ffmpeg, imagemagick
 
-## Encrypted Directories
+### Programs (via Home Manager)
+- **Git**: Full config with 50+ aliases, delta integration
+- **Zsh**: Prezto, autosuggestions, syntax highlighting
+- **Tmux**: Vi mode, plugins (resurrect, continuum)
+- **Kitty**: Dracula theme, Nerd Fonts
+- **Alacritty**: Minimal config
 
-Some directories are encrypted with git-crypt:
-- `dotssh/` - SSH configuration
-- `dotsec/` - Secrets
-- `dotgcloud/` - Google Cloud config
+### macOS Settings (via nix-darwin)
+- Dock: autohide, no recents
+- Finder: show all files, list view
+- Keyboard: caps lock → escape, fast repeat
+- Touch ID for sudo
 
-To unlock:
-```bash
-# Requires GPG key setup
-git-crypt unlock
+### GUI Apps (via Homebrew casks)
+- Docker, Chrome, Spotify, VLC, Slack, 1Password
+
+## Customization
+
+### Add a package
+Edit `modules/packages.nix`:
+```nix
+home.packages = with pkgs; [
+  # Add your package here
+  neovim
+];
 ```
 
-## Submodules
-
-Update all submodules:
-```bash
-git submodule update --init --recursive
-git submodule foreach git pull origin master
+### Add a shell alias
+Edit `modules/shell.nix`:
+```nix
+shellAliases = {
+  myalias = "my command";
+};
 ```
+
+### Machine-specific config
+Create `~/.zshrc.local` for machine-specific settings (sourced automatically).
+
+## Migration from Makefile
+
+The old Makefile-based approach is archived. Key differences:
+
+| Old (Makefile) | New (Nix) |
+|----------------|-----------|
+| `make base` | `home-manager switch --flake .` |
+| `make full` | `darwin-rebuild switch --flake .` |
+| Brewfile | `modules/packages.nix` |
+| gitconfig | `modules/git.nix` |
+| tmux.conf | `modules/tmux.nix` |
+| zshrc | `modules/shell.nix` |
 
 ## Troubleshooting
 
-### Symlinks broken
+### Rebuild after changes
 ```bash
-make doctor   # Check status
-make clean    # Remove all
-make base     # Reinstall
+home-manager switch --flake ~/dotfiles
 ```
 
-### Submodules missing
+### Check for errors
 ```bash
-git submodule update --init --recursive
+nix flake check
+home-manager build --flake ~/dotfiles
 ```
 
-### Homebrew issues
+### Update all packages
 ```bash
-brew bundle check --file=Brewfile.base
-brew bundle --file=Brewfile.base
+nix flake update
+home-manager switch --flake ~/dotfiles
+```
+
+### Rollback
+```bash
+home-manager generations  # List generations
+home-manager switch --flake ~/dotfiles --rollback
+```
+
+### Clean old generations
+```bash
+nix-collect-garbage -d
+```
+
+## Encrypted Secrets
+
+Some directories are encrypted with git-crypt:
+- `dotssh/` - SSH keys and config
+- `dotpassword-store/` - Password store
+
+To unlock:
+```bash
+git-crypt unlock
 ```
 
 ## License
