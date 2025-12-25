@@ -151,8 +151,10 @@
     dnsmasq
     terminal-notifier
 
-    # Fonts (Nerd Fonts)
-    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" "Hack" ]; })
+    # Fonts (Nerd Fonts) - individual packages in nixpkgs-unstable
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.fira-code
+    nerd-fonts.hack
   ];
 
   fonts.fontconfig.enable = true;

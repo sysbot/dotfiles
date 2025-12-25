@@ -27,17 +27,17 @@
     "zed/settings.json".source = ./dotconfig/zed/settings.json;
   };
 
-  # Encrypted directories (symlinks)
-  home.file = {
-    ".ssh" = {
-      source = ./dotssh;
-      recursive = true;
-    };
-    ".password-store" = {
-      source = ./dotpassword-store;
-      recursive = true;
-    };
-  };
+  # Encrypted directories - managed manually (git-crypt encrypted, not tracked in flake)
+  # home.file = {
+  #   ".ssh" = {
+  #     source = ./dotssh;
+  #     recursive = true;
+  #   };
+  #   ".password-store" = {
+  #     source = ./dotpassword-store;
+  #     recursive = true;
+  #   };
+  # };
 
   # Environment variables
   home.sessionVariables = {

@@ -38,10 +38,12 @@
           ./darwin.nix
           home-manager.darwinModules.home-manager
           {
+            nixpkgs.config.allowUnfree = true;
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.bao = import ./home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
+            users.users.bao.home = "/Users/bao";
           }
         ];
       };

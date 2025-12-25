@@ -1,6 +1,9 @@
 { pkgs, ... }:
 
 {
+  # Primary user for user-specific settings
+  system.primaryUser = "bao";
+
   # Nix configuration
   nix = {
     settings = {
@@ -8,9 +11,6 @@
       trusted-users = [ "root" "bao" ];
     };
   };
-
-  # Enable nix-darwin
-  services.nix-daemon.enable = true;
 
   # System packages (available system-wide)
   environment.systemPackages = with pkgs; [
@@ -24,7 +24,8 @@
 
   # Fonts
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.fira-code
   ];
 
   # macOS system preferences
@@ -86,7 +87,7 @@
   };
 
   # Touch ID for sudo
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   # Homebrew (for casks that aren't in nixpkgs)
   homebrew = {
