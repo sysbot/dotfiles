@@ -154,8 +154,6 @@
         "spectrum"
         "utility"
         "completion"
-        "prompt"
-        "git"
         "syntax-highlighting"
         "history-substring-search"
         "autosuggestions"
@@ -164,7 +162,7 @@
         keymap = "vi";
         dotExpansion = true;
       };
-      prompt.theme = "sorin";
+      prompt.theme = "off";  # Using starship instead
       terminal.autoTitle = true;
       utility.safeOps = true;
     };
@@ -211,24 +209,27 @@
     enableZshIntegration = true;
     settings = {
       add_newline = false;
+      format = "$directory$character";
       character = {
         success_symbol = "[➜](bold green)";
         error_symbol = "[✗](bold red)";
       };
       directory = {
         truncation_length = 3;
-        truncate_to_repo = true;
+        truncate_to_repo = false;
       };
-      git_branch.symbol = " ";
-      git_status = {
-        ahead = "⇡\${count}";
-        behind = "⇣\${count}";
-        diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";
-      };
-      nix_shell = {
-        symbol = " ";
-        format = "via [$symbol$state]($style) ";
-      };
+      # Disable everything else
+      git_branch.disabled = true;
+      git_status.disabled = true;
+      git_commit.disabled = true;
+      git_state.disabled = true;
+      nix_shell.disabled = true;
+      nodejs.disabled = true;
+      python.disabled = true;
+      rust.disabled = true;
+      golang.disabled = true;
+      package.disabled = true;
+      cmd_duration.disabled = true;
     };
   };
 }

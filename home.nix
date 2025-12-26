@@ -7,6 +7,7 @@
     ./modules/shell.nix
     ./modules/tmux.nix
     ./modules/terminals.nix
+    ./modules/emacs.nix
   ];
 
   home = {

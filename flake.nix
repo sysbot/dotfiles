@@ -14,12 +14,22 @@
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Emacs overlay for emacs-macport (emacs-mac equivalent)
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs:
     let
       system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [ inputs.emacs-overlay.overlays.default ];
+      };
     in
     {
       # Standalone Home Manager configuration
@@ -39,6 +49,7 @@
           home-manager.darwinModules.home-manager
           {
             nixpkgs.config.allowUnfree = true;
+            nixpkgs.overlays = [ inputs.emacs-overlay.overlays.default ];
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.bao = import ./home.nix;
