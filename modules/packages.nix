@@ -48,8 +48,7 @@
     nodejs
     ruby
     perl
-    lua
-    luajit
+    luajit  # provides lua, don't install both
 
     # =========================================================================
     # Security & encryption
