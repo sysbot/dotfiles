@@ -103,13 +103,23 @@
       "mole"
     ];
     casks = [
-      "docker"
-      "google-chrome"
-      "spotify"
-      "vlc"
+      "airflow"
+      "audacity"
+      "balenaEtcher"
+      "blender"
+      "darktable"
       "discord"
+      "ghostty"
+      "google-chrome"
+      "grandperspective"
+      "openscad"
+      "orbstack"
       "slack"
-      "1password"
+      "spotify"
+      "tailscale-app"
+      "transmission"
+      "vlc"
+      "yed"
     ];
   };
 

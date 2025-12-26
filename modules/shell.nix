@@ -18,9 +18,10 @@
 
     shellAliases = {
       # Emacs
-      em = "emacsclient -t";
-      vi = "emacsclient -t";
-      emacs = "emacsclient --no-wait -c -a emacs";
+      em = "emacsclient -t";                        # terminal mode
+      vi = "emacsclient -t";                        # terminal mode
+      e = "emacsclient -n";                         # open in existing frame (no wait)
+      emacs = "emacsclient -n -a emacs";            # open in existing frame, fallback to new
 
       # Modern replacements
       ls = "eza";
@@ -33,7 +34,8 @@
       cd = "z";
 
       # Git shortcuts
-      g = "git";
+      g = "git status";
+      d = "git diff";
       gs = "git status";
       gd = "git diff";
       gc = "git commit";
@@ -123,9 +125,11 @@
       # =========================================================================
       # Path additions
       # =========================================================================
+      export PATH="/opt/homebrew/bin:$PATH"
       export PATH="$HOME/.local/bin:$PATH"
       export PATH="$HOME/go/bin:$PATH"
       export PATH="$HOME/.cargo/bin:$PATH"
+      export PATH="$HOME/bin:$PATH"
 
       # =========================================================================
       # Nix

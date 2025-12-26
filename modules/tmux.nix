@@ -45,10 +45,6 @@
       unbind r
       bind r source-file ~/.tmux.conf
 
-      # Quick pane cycling
-      unbind ^A
-      bind ^A select-pane -t :.+
-
       # Split bindings
       unbind %
       bind | split-window -h

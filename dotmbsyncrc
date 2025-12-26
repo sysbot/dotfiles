@@ -1,104 +1,90 @@
-# mbsyncrc based on
-# http://www.ict4g.net/adolfo/notes/2014/12/27/EmacsIMAP.html 
-# http://isync.sourceforge.net/mbsync.html
-# ACCOUNT INFORMATION
+# mbsync configuration
+# Updated syntax for mbsync 1.4+ (Far/Near instead of Master/Slave)
+# ─────┬────────────────────────────────────────────────────────────────────────────────────────────────────
+#      │ File: notes.org
+# ─────┼────────────────────────────────────────────────────────────────────────────────────────────────────
+#    1 │ * Using email
+#    2 │ mbsync to get new mails from imap locations
+#    3 │ mu index --maildir=~/Mail/personal --rebuild - to rebuild/unlock index
+
+
+# ===========================================================================
+# ACCOUNT: Personal Gmail
+# ===========================================================================
 IMAPAccount personal
 Host imap.gmail.com
 User ngqbao@gmail.com
-#Pass eacgjaoqfrgpqnvy
-PassCmd "security find-generic-password -s mbsync-ngqbao@gmail.com -w"
+PassCmd "p mbsync+ngqbao@gmail.com"
 AuthMechs LOGIN
 SSLType IMAPS
 SSLVersions TLSv1.2
 
-# IMAPAccount fastly
-# Host imap.gmail.com
-# User bao@fastly.com
-# PassCmd "security find-generic-password -s mbsync-bao@fastly.com -w"
-# AuthMechs LOGIN
-# SSLType IMAPS
-# SSLVersions TLSv1.2
-#CertificateFile /opt/local/share/curl/curl-ca-bundle.crt
-
-# THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
-# - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE
-#   SPECIFICATION OF AN IMAP ACCOUNT)
-# - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
-
-# REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
+# Remote storage
 IMAPStore personal-remote
 Account personal
 
-IMAPStore fastly-remote
-Account fastly
-
-# LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p Maildir/personal)
+# Local storage (create with: mkdir -p ~/Mail/personal)
 MaildirStore personal-local
 Path ~/Mail/personal/
 Inbox ~/Mail/personal/INBOX
+SubFolders Verbatim
 
-MaildirStore fastly-local
-Path ~/Mail/fastly/
-Inbox ~/Mail/fastly/INBOX
-
-# CONNECTIONS SPECIFY LINKS BETWEEN REMOTE AND LOCAL FOLDERS
-#
-# CONNECTIONS ARE SPECIFIED USING PATTERNS, WHICH MATCH REMOTE MAIl
-# FOLDERS. SOME COMMONLY USED PATTERS INCLUDE:
-#
-# 1 "*" TO MATCH EVERYTHING
-# 2 "!DIR" TO EXCLUDE "DIR"
-# 3 "DIR" TO MATCH DIR
-
+# ---------------------------------------------------------------------------
+# Channels
+# ---------------------------------------------------------------------------
 Channel personal-inbox
-Master :personal-remote:
-Slave :personal-local:
+Far :personal-remote:
+Near :personal-local:
 Patterns "INBOX"
 Create Both
 Expunge Both
 SyncState *
 
-Channel personal-trash
-Master :personal-remote:"[Gmail]/Trash"
-Slave :personal-local:trash
-Create Both
-Expunge Both
-SyncState *
-
 Channel personal-sent
-Master :personal-remote:"[Gmail]/Sent Mail"
-Slave :personal-local:sent
+Far :personal-remote:"[Gmail]/Sent Mail"
+Near :personal-local:sent
 Create Both
 Expunge Both
 SyncState *
 
-Channel personal-important
-Master :personal-remote:"[Gmail]/Important"
-Slave :personal-local:important
+Channel personal-trash
+Far :personal-remote:"[Gmail]/Trash"
+Near :personal-local:trash
 Create Both
 Expunge Both
 SyncState *
 
 Channel personal-drafts
-Master :personal-remote:"[Gmail]/Drafts"
-Slave :personal-local:drafts
+Far :personal-remote:"[Gmail]/Drafts"
+Near :personal-local:drafts
+Create Both
+Expunge Both
+SyncState *
+
+Channel personal-important
+Far :personal-remote:"[Gmail]/Important"
+Near :personal-local:important
 Create Both
 Expunge Both
 SyncState *
 
 Channel personal-starred
-Master :personal-remote:"[Gmail]/Starred"
-Slave :personal-local:starred
+Far :personal-remote:"[Gmail]/Starred"
+Near :personal-local:starred
 Create Both
 Expunge Both
 SyncState *
 
-# GROUPS PUT TOGETHER CHANNELS, SO THAT WE CAN INVOKE
-# MBSYNC ON A GROUP TO SYNC ALL CHANNELS
-#
-# FOR INSTANCE: "mbsync gmail" GETS MAIL FROM
-# "gmail-inbox", "gmail-sent", and "gmail-trash"
-#
+Channel personal-archive
+Far :personal-remote:"[Gmail]/All Mail"
+Near :personal-local:archive
+Create Both
+Expunge Both
+SyncState *
+
+# ---------------------------------------------------------------------------
+# Group: Sync all personal channels with `mbsync personal`
+# ---------------------------------------------------------------------------
 Group personal
 Channel personal-inbox
 Channel personal-sent
@@ -106,60 +92,4 @@ Channel personal-trash
 Channel personal-drafts
 Channel personal-important
 Channel personal-starred
-
-Channel fastly-inbox
-Master :fastly-remote:
-Slave :fastly-local:
-Patterns "INBOX"
-Create Both
-Expunge Both
-SyncState *
-
-Channel fastly-trash
-Master :fastly-remote:"[Gmail]/Trash"
-Slave :fastly-local:trash
-Create Both
-Expunge Both
-SyncState *
-
-Channel fastly-sent
-Master :fastly-remote:"[Gmail]/Sent Mail"
-Slave :fastly-local:sent
-Create Both
-Expunge Both
-SyncState *
-
-Channel fastly-important
-Master :fastly-remote:"[Gmail]/Important"
-Slave :fastly-local:important
-Create Both
-Expunge Both
-SyncState *
-
-Channel fastly-drafts
-Master :fastly-remote:"[Gmail]/Drafts"
-Slave :fastly-local:drafts
-Create Both
-Expunge Both
-SyncState *
-
-Channel fastly-starred
-Master :fastly-remote:"[Gmail]/Starred"
-Slave :fastly-local:starred
-Create Both
-Expunge Both
-SyncState *
-
-# GROUPS PUT TOGETHER CHANNELS, SO THAT WE CAN INVOKE
-# MBSYNC ON A GROUP TO SYNC ALL CHANNELS
-#
-# FOR INSTANCE: "mbsync gmail" GETS MAIL FROM
-# "gmail-inbox", "gmail-sent", and "gmail-trash"
-#
-Group fastly
-Channel fastly-inbox
-Channel fastly-sent
-Channel fastly-trash
-Channel fastly-drafts
-Channel fastly-important
-Channel fastly-starred
+Channel personal-archive

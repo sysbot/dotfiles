@@ -24,8 +24,6 @@
 
   # Raw config files for programs without HM modules
   xdg.configFile = {
-    "ghostty/config".source = ./dotconfig/ghostty/config;
-    "zed/settings.json".source = ./dotconfig/zed/settings.json;
   };
 
   # Encrypted directories - managed manually (git-crypt encrypted, not tracked in flake)

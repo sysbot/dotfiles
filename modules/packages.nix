@@ -12,6 +12,7 @@
     gawk
     gnugrep
     gnumake
+    indent  # gnu-indent
 
     # =========================================================================
     # Shell
@@ -34,19 +35,23 @@
     # =========================================================================
     cmake
     autoconf
+    autoconf-archive
     automake
     libtool
     pkg-config
     gcc
+    # binutils - included with gcc
 
     # =========================================================================
     # Languages & runtimes
     # =========================================================================
     python3
+    uv  # Fast Python package installer & resolver
     go
     rustup
     nodejs
     ruby
+    chruby
     perl
     luajit  # provides lua, don't install both
 
@@ -58,6 +63,8 @@
     openssl
     age
     sops
+    libyubikey
+    yubikey-personalization  # ykpers
 
     # =========================================================================
     # Networking & web
@@ -69,6 +76,8 @@
     autossh
     mtr
     bandwhich
+    links2  # text browser
+    w3m     # text browser
 
     # =========================================================================
     # Search & navigation
@@ -77,23 +86,28 @@
     fd
     fzf
     tree
-    eza  # Modern ls
-    zoxide  # Smart cd
-    bat  # Better cat
-    sd  # Better sed
+    pstree
+    eza       # Modern ls
+    zoxide    # Smart cd
+    bat       # Better cat
+    sd        # Better sed
+    ack
+    silver-searcher  # ag
+    peco
 
     # =========================================================================
     # Process & system monitoring
     # =========================================================================
     htop
     btop
-    procs  # Better ps
+    procs   # Better ps
     bottom  # System monitor
 
     # =========================================================================
     # Cloud & infrastructure
     # =========================================================================
     awscli2
+    s3cmd
     google-cloud-sdk
     terraform
     kubectl
@@ -106,6 +120,7 @@
     yq
     pandoc
     ispell
+    ctags
 
     # =========================================================================
     # Media & graphics
@@ -115,12 +130,21 @@
     graphviz
 
     # =========================================================================
-    # Email (optional - uncomment if needed)
+    # Email & communication (uncomment if needed)
     # =========================================================================
     # msmtp
     # isync
     # mu
     # notmuch
+    # neomutt
+    weechat
+
+    # =========================================================================
+    # Terminal & multiplexing
+    # =========================================================================
+    # tmux managed by programs.tmux
+    reattach-to-user-namespace  # for tmux on macOS
+    terminal-notifier
 
     # =========================================================================
     # Development utilities
@@ -128,7 +152,6 @@
     direnv
     entr
     watch
-    ctags
     shellcheck
     nixpkgs-fmt
     nil  # Nix LSP
@@ -137,20 +160,43 @@
     # Archiving & compression
     # =========================================================================
     unzip
+    unar      # The Unarchiver
+    unrar
     p7zip
     xz
+    lzip
     zstd
 
     # =========================================================================
-    # Misc utilities
+    # DNS & networking tools
+    # =========================================================================
+    dnsmasq
+    proxychains-ng
+
+    # =========================================================================
+    # Backup & sync
     # =========================================================================
     rclone
     borgbackup
-    gopass
-    dnsmasq
-    terminal-notifier
 
-    # Fonts (Nerd Fonts) - individual packages in nixpkgs-unstable
+    # =========================================================================
+    # Password management
+    # =========================================================================
+    gopass
+
+    # =========================================================================
+    # Libraries (usually auto-installed, but explicit for completeness)
+    # =========================================================================
+    readline
+    sqlite
+    libxml2
+    pcre
+    oniguruma
+    libyaml
+
+    # =========================================================================
+    # Fonts (Nerd Fonts)
+    # =========================================================================
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
     nerd-fonts.hack

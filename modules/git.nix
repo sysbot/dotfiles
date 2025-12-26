@@ -207,4 +207,39 @@
       editor = "emacsclient";
     };
   };
+
+  # Tig configuration (no home-manager module, use xdg.configFile)
+  xdg.configFile."tig/config".text = ''
+    # Display settings
+    set main-view-id = yes
+    set line-graphics = utf-8
+    set tab-size = 4
+    set ignore-case = yes
+    set split-view-height = 70%
+
+    # Bindings - Generic
+    bind generic + !git commit --amend
+    bind generic T !git notes edit %(commit)
+    bind generic I !git add -i %(file)
+    bind generic V :toggle split-view-height -10%
+    bind generic 9 !@sh -c "echo %(commit) | pbcopy"
+
+    # Bindings - Refs
+    bind refs 3 !git rebase -i %(branch)
+
+    # Bindings - Main view
+    bind main R refresh
+    bind main <Ctrl-f> scroll-page-down
+    bind main <Ctrl-b> scroll-page-up
+    bind main <Esc>o options
+    bind main I :toggle id
+
+    # Bindings - Diff view
+    bind diff r !open https://github.com/%(repo)/commit/%(commit)
+    bind diff <Ctrl-f> scroll-page-down
+    bind diff <Ctrl-b> scroll-page-up
+    bind diff D :toggle diff-options --minimal
+    bind diff [ :toggle diff-context -3
+    bind diff ] :toggle diff-context +3
+  '';
 }
