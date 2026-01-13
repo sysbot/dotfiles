@@ -1,0 +1,29 @@
+# Machine-specific / ephemeral data
+agent-state/
+debug/
+file-history/
+history.jsonl
+plans/
+session-env/
+shell-snapshots/
+stats-cache.json
+statsig/
+telemetry/
+todos/
+
+# Local secrets (API keys, etc.)
+settings.local.json
+
+# Downloaded/cached content
+downloads/
+ide/
+plugins/
+mcp-servers/
+
+# Project-specific settings (tracked per-project)
+projects/
+
+# Other
+agents/
+README.md
+setup.sh
