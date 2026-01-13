@@ -19,11 +19,42 @@
   # Let Home Manager manage itself
   programs.home-manager.enable = true;
 
+  # SSH with agent integration
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    matchBlocks = {
+      "*" = {
+        extraOptions = {
+          AddKeysToAgent = "yes";
+          UseKeychain = "yes";
+          IgnoreUnknown = "UseKeychain";
+        };
+        serverAliveInterval = 60;
+        serverAliveCountMax = 3;
+      };
+      "github.com" = {
+        hostname = "github.com";
+        user = "git";
+        identityFile = "~/.ssh/key_personal";
+        identitiesOnly = true;
+      };
+    };
+  };
+
   # XDG directories
   xdg.enable = true;
 
   # Raw config files for programs without HM modules
   xdg.configFile = {
+    # Kanidm client configuration
+    "kanidm" = {
+      text = ''
+        uri = "https://auth.tunas.n4n.dev"
+        verify_ca = false
+        verify_hostnames = false
+      '';
+    };
   };
 
   # Encrypted directories - managed manually (git-crypt encrypted, not tracked in flake)

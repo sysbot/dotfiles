@@ -20,6 +20,12 @@
       url = "github:nix-community/emacs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # qmd - Quick Markdown Search
+    qmd = {
+      url = "github:tobi/qmd";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, darwin, ... }@inputs:
@@ -52,6 +58,7 @@
             nixpkgs.overlays = [ inputs.emacs-overlay.overlays.default ];
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
             home-manager.users.bao = import ./home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
             users.users.bao.home = "/Users/bao";

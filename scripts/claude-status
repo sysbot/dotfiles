@@ -1,0 +1,306 @@
+#!/usr/bin/env bash
+# claude-status - Monitor Claude Code agents across tmux panes
+# Usage: claude-status [--tmux-status | --watch | --json]
+
+set -euo pipefail
+
+# Colors for terminal output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Icons
+ICON_WORKING="⚡"
+ICON_ASKING="❓"
+ICON_IDLE="💤"
+ICON_AGENT="🤖"
+
+# Hook-based state directory
+STATE_DIR="$HOME/.claude/agent-state"
+
+get_claude_processes() {
+    # Get claude processes with their TTY, CPU%, and state
+    # Match only the main claude binary (not MCP servers, etc.)
+    ps aux | awk '/claude$/ && !/grep/ && $7 != "??" {print $2"|"$7"|"$3"|"$8}'
+}
+
+tty_to_tmux_pane() {
+    local tty="$1"
+    # Convert TTY like "s001" to "/dev/ttys001"
+    local dev_tty="/dev/tty${tty}"
+
+    # Find tmux pane with this TTY
+    tmux list-panes -a -F '#{pane_tty}|#{session_name}|#{window_index}|#{pane_index}|#{pane_current_path}' 2>/dev/null | \
+        grep "^${dev_tty}|" | head -1
+}
+
+get_hook_state() {
+    # Read state from hook-based tracking files
+    # Returns: state|question (if asking)
+    local session_id="$1"
+
+    # Find state file by matching session patterns
+    # State files are named by Claude session ID, not tmux session
+    # We need to find the most recent state file that matches this pane
+    local state_file
+    local newest_state=""
+    local newest_time=0
+
+    if [[ -d "$STATE_DIR" ]]; then
+        for f in "$STATE_DIR"/*.json; do
+            [[ -f "$f" ]] || continue
+            local mtime
+            mtime=$(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f" 2>/dev/null || echo 0)
+            if [[ $mtime -gt $newest_time ]]; then
+                # Check if this state file's project matches
+                local proj
+                proj=$(jq -r '.project // empty' "$f" 2>/dev/null)
+                if [[ -n "$proj" ]]; then
+                    newest_time=$mtime
+                    newest_state="$f"
+                fi
+            fi
+        done
+    fi
+
+    if [[ -n "$newest_state" && -f "$newest_state" ]]; then
+        local state question
+        state=$(jq -r '.state // "unknown"' "$newest_state" 2>/dev/null)
+        question=$(jq -r '.question // empty' "$newest_state" 2>/dev/null)
+        echo "${state}|${question}"
+    else
+        echo "unknown|"
+    fi
+}
+
+find_state_for_project() {
+    local project="$1"
+    local result="unknown|"
+
+    if [[ -d "$STATE_DIR" ]]; then
+        for f in "$STATE_DIR"/*.json; do
+            [[ -f "$f" ]] || continue
+            local proj state question
+            proj=$(jq -r '.project // empty' "$f" 2>/dev/null)
+            if [[ "$proj" == "$project" ]]; then
+                state=$(jq -r '.state // "unknown"' "$f" 2>/dev/null)
+                question=$(jq -r '.question // empty' "$f" 2>/dev/null)
+                result="${state}|${question}"
+                break
+            fi
+        done
+    fi
+    echo "$result"
+}
+
+detect_pane_state() {
+    local session="$1"
+    local window="$2"
+    local pane="$3"
+    local project="$4"
+
+    # First, check hook-based state for this project
+    local hook_state hook_question
+    IFS='|' read -r hook_state hook_question <<< "$(find_state_for_project "$project")"
+
+    if [[ "$hook_state" == "asking" ]]; then
+        echo "asking|$hook_question"
+        return
+    elif [[ "$hook_state" == "idle" ]]; then
+        echo "idle|"
+        return
+    elif [[ "$hook_state" == "working" ]]; then
+        echo "working|"
+        return
+    fi
+
+    # Fallback: heuristic-based detection from pane content
+    local content
+    content=$(tmux capture-pane -t "${session}:${window}.${pane}" -p -S -5 2>/dev/null | tail -5)
+
+    # Check for asking patterns (AskUserQuestion, confirmations, etc.)
+    if echo "$content" | grep -qiE "(waiting for|select.*option|choice|y/n|yes/no|\[Y/n\]|\[y/N\])"; then
+        echo "asking|"
+    # Check for idle at prompt
+    elif echo "$content" | tail -1 | grep -qE "^[>❯$]|claude>"; then
+        echo "idle|"
+    else
+        echo "working|"
+    fi
+}
+
+get_project_name() {
+    local path="$1"
+    basename "$path" 2>/dev/null || echo "unknown"
+}
+
+format_status_line() {
+    local total=0
+    local working=0
+    local asking=0
+    local idle=0
+
+    while IFS='|' read -r pid tty cpu state; do
+        [[ -z "$pid" ]] && continue
+
+        pane_info=$(tty_to_tmux_pane "$tty")
+        [[ -z "$pane_info" ]] && continue
+
+        total=$((total + 1))
+
+        IFS='|' read -r _ session window pane path <<< "$pane_info"
+        project=$(get_project_name "$path")
+        pane_state_info=$(detect_pane_state "$session" "$window" "$pane" "$project")
+        pane_state="${pane_state_info%%|*}"
+
+        case "$pane_state" in
+            working) working=$((working + 1)) ;;
+            asking) asking=$((asking + 1)) ;;
+            idle) idle=$((idle + 1)) ;;
+        esac
+    done < <(get_claude_processes)
+
+    # Format for tmux status bar
+    if [[ $total -eq 0 ]]; then
+        echo ""
+    elif [[ $asking -gt 0 ]]; then
+        echo "#[fg=yellow,bold]${ICON_AGENT}${total} ${ICON_ASKING}${asking}#[default]"
+    elif [[ $working -gt 0 ]]; then
+        echo "#[fg=green]${ICON_AGENT}${total} ${ICON_WORKING}${working}#[default]"
+    else
+        echo "#[fg=blue]${ICON_AGENT}${total}#[default]"
+    fi
+}
+
+format_full_status() {
+    echo -e "${CYAN}═══════════════════════════════════════${NC}"
+    echo -e "${CYAN}       CLAUDE CODE AGENT STATUS        ${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════${NC}"
+    echo ""
+
+    local found=0
+
+    while IFS='|' read -r pid tty cpu state; do
+        [[ -z "$pid" ]] && continue
+
+        pane_info=$(tty_to_tmux_pane "$tty")
+        [[ -z "$pane_info" ]] && continue
+
+        found=1
+
+        IFS='|' read -r _ session window pane path <<< "$pane_info"
+        project=$(get_project_name "$path")
+        pane_state_info=$(detect_pane_state "$session" "$window" "$pane" "$project")
+        pane_state="${pane_state_info%%|*}"
+        question="${pane_state_info#*|}"
+
+        # Status icon and color
+        case "$pane_state" in
+            working)
+                icon="${ICON_WORKING}"
+                color="${GREEN}"
+                status="WORKING"
+                ;;
+            asking)
+                icon="${ICON_ASKING}"
+                color="${YELLOW}"
+                status="ASKING"
+                ;;
+            idle)
+                icon="${ICON_IDLE}"
+                color="${BLUE}"
+                status="IDLE"
+                ;;
+            *)
+                icon="${ICON_WORKING}"
+                color="${GREEN}"
+                status="ACTIVE"
+                ;;
+        esac
+
+        echo -e "${color}${icon} ${status}${NC} │ ${session}:${window}.${pane}"
+        echo -e "         │ Project: ${CYAN}${project}${NC}"
+        if [[ -n "$question" && "$pane_state" == "asking" ]]; then
+            echo -e "         │ ${YELLOW}Q: ${question}${NC}"
+        fi
+        echo -e "         │ CPU: ${cpu}% │ PID: ${pid}"
+        echo ""
+    done < <(get_claude_processes)
+
+    if [[ $found -eq 0 ]]; then
+        echo -e "${BLUE}No Claude agents running${NC}"
+    fi
+
+    echo -e "${CYAN}───────────────────────────────────────${NC}"
+    echo -e "  Updated: $(date '+%H:%M:%S')"
+}
+
+format_json() {
+    echo "["
+    local first=true
+
+    while IFS='|' read -r pid tty cpu state; do
+        [[ -z "$pid" ]] && continue
+
+        pane_info=$(tty_to_tmux_pane "$tty")
+        [[ -z "$pane_info" ]] && continue
+
+        IFS='|' read -r _ session window pane path <<< "$pane_info"
+        project=$(get_project_name "$path")
+        pane_state_info=$(detect_pane_state "$session" "$window" "$pane" "$project")
+        pane_state="${pane_state_info%%|*}"
+        question="${pane_state_info#*|}"
+
+        $first || echo ","
+        first=false
+
+        cat <<EOF
+  {
+    "pid": $pid,
+    "session": "$session",
+    "window": $window,
+    "pane": $pane,
+    "project": "$project",
+    "state": "$pane_state",
+    "question": "$question",
+    "cpu": $cpu
+  }
+EOF
+    done < <(get_claude_processes)
+
+    echo "]"
+}
+
+# Main
+case "${1:-}" in
+    --tmux-status|-t)
+        format_status_line
+        ;;
+    --watch|-w)
+        watch -n 2 -c "$0"
+        ;;
+    --json|-j)
+        format_json
+        ;;
+    --help|-h)
+        cat <<EOF
+claude-status - Monitor Claude Code agents
+
+Usage:
+  claude-status              Full status display
+  claude-status --tmux-status  Compact status for tmux status bar
+  claude-status --watch      Live updating display
+  claude-status --json       JSON output
+
+Tmux integration:
+  Add to status-right in tmux.conf:
+    set -g status-right '#(~/.config/scripts/claude-status --tmux-status)'
+EOF
+        ;;
+    *)
+        format_full_status
+        ;;
+esac

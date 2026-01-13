@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -63,8 +63,10 @@
     openssl
     age
     sops
+    mkcert  # Local CA for dev HTTPS
     libyubikey
     yubikey-personalization  # ykpers
+    kanidm_1_8  # Identity management
 
     # =========================================================================
     # Networking & web
@@ -123,11 +125,17 @@
     ctags
 
     # =========================================================================
+    # External flakes
+    # =========================================================================
+    inputs.qmd.packages.${pkgs.system}.default
+
+    # =========================================================================
     # Media & graphics
     # =========================================================================
     ffmpeg
     imagemagick
     graphviz
+    yt-dlp
 
     # =========================================================================
     # Email & communication (uncomment if needed)
@@ -143,7 +151,6 @@
     # Terminal & multiplexing
     # =========================================================================
     # tmux managed by programs.tmux
-    reattach-to-user-namespace  # for tmux on macOS
     terminal-notifier
 
     # =========================================================================

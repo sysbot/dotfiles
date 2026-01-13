@@ -52,6 +52,9 @@
       path = "echo $PATH | tr ':' '\\n'";
       week = "date +%V";
       p = "~/bin/passage";
+
+      # Homebrew sync (run manually when Brewfile changes)
+      brewsync = "brew bundle --file=~/dotfiles/Brewfile --cleanup";
     };
 
     sessionVariables = {
@@ -59,9 +62,14 @@
       VISUAL = "emacsclient -c";
       LANG = "en_US.UTF-8";
       LC_ALL = "en_US.UTF-8";
+      # Enable Claude Code LSP integration
+      ENABLE_LSP_TOOL = "1";
     };
 
-    initExtra = ''
+    initContent = ''
+      # Start in home directory if at root
+      [[ "$PWD" == "/" ]] && cd ~
+
       # =========================================================================
       # Custom Functions (from dotzshrc)
       # =========================================================================
@@ -130,6 +138,26 @@
       export PATH="$HOME/go/bin:$PATH"
       export PATH="$HOME/.cargo/bin:$PATH"
       export PATH="$HOME/bin:$PATH"
+      export PATH="$HOME/.config/emacs/bin:$PATH"
+
+      # =========================================================================
+      # SSH Agent (macOS) - Use launchd-managed agent with Keychain
+      # =========================================================================
+      if [[ "$(uname)" == "Darwin" ]]; then
+        # Use macOS launchd-managed ssh-agent socket (persists across all sessions)
+        if [[ -z "$SSH_AUTH_SOCK" ]]; then
+          export SSH_AUTH_SOCK=$(ls /private/tmp/com.apple.launchd.*/Listeners 2>/dev/null | head -1)
+        fi
+
+        # Load keys from Keychain (passphrase stored with --apple-use-keychain)
+        ssh-add --apple-load-keychain 2>/dev/null
+
+        # Add key_personal if not in agent
+        if [[ -f ~/.ssh/key_personal ]]; then
+          ssh-add -l 2>/dev/null | grep -q "key_personal" || \
+            ssh-add --apple-use-keychain ~/.ssh/key_personal 2>/dev/null
+        fi
+      fi
 
       # =========================================================================
       # Nix
@@ -234,6 +262,26 @@
       golang.disabled = true;
       package.disabled = true;
       cmd_duration.disabled = true;
+    };
+  };
+
+  # Atuin - better shell history with sync
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    flags = [ "--disable-up-arrow" ];  # Don't override up arrow, use ctrl-r
+    settings = {
+      auto_sync = true;
+      sync_frequency = "5m";
+      search_mode = "fuzzy";
+      filter_mode = "global";
+      style = "compact";
+      inline_height = 20;
+      show_preview = true;
+      # Privacy
+      update_check = false;
+      # Performance
+      search_mode_shell_up_key_binding = "prefix";
     };
   };
 }
