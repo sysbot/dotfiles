@@ -4,9 +4,17 @@ Personal configuration files managed by **nix-darwin + Home Manager**.
 
 ## New Mac Setup (Complete Guide)
 
+### One-Liner (from scratch)
+```bash
+curl -fsSL https://raw.githubusercontent.com/sysbot/dotfiles/master/bootstrap.sh | bash
+```
+
+Or step-by-step:
+
 ### Step 1: Install Xcode Command Line Tools
 ```bash
 xcode-select --install
+# Wait for installation to complete
 ```
 
 ### Step 2: Clone Dotfiles
@@ -17,16 +25,15 @@ cd ~/dotfiles
 
 ### Step 3: Run Bootstrap
 ```bash
-make bootstrap
+./bootstrap.sh
 ```
 
 This will:
 1. Install **Nix** (Determinate Systems installer)
 2. Install **Homebrew** (for GUI apps/casks)
 3. Run **darwin-rebuild** (nix-darwin + home-manager)
-4. Install **Doom Emacs**
 
-If Nix wasn't installed, restart your terminal and run `make bootstrap` again.
+If Nix wasn't installed, restart your terminal and run `./bootstrap.sh` again.
 
 ### Step 4: Unlock Secrets (if you have GPG key)
 ```bash
