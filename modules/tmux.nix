@@ -4,15 +4,16 @@
   programs.tmux = {
     enable = true;
     prefix = "C-o";
+    shell = "${pkgs.zsh}/bin/zsh";
     terminal = "screen-256color";
     keyMode = "vi";
     baseIndex = 1;
     escapeTime = 0;
     historyLimit = 50000;
     mouse = false;
+    sensibleOnTop = false;  # Disable sensible plugin (uses outdated reattach-to-user-namespace)
 
     plugins = with pkgs.tmuxPlugins; [
-      sensible
       yank
       {
         plugin = resurrect;
@@ -28,6 +29,12 @@
     ];
 
     extraConfig = ''
+      # Override default-command (disable reattach-to-user-namespace, not needed on modern macOS)
+      set -g default-command "${pkgs.zsh}/bin/zsh"
+
+      # Size windows based on largest client (smaller clients see viewport)
+      set -g window-size largest
+
       # Repeat time
       set -g repeat-time 35
 
@@ -43,7 +50,7 @@
 
       # Reload config
       unbind r
-      bind r source-file ~/.tmux.conf
+      bind r source-file ~/.config/tmux/tmux.conf
 
       # Split bindings
       unbind %
@@ -92,10 +99,14 @@
 
       # Status bar content
       set -g status-left "#[fg=Green]#(whoami)#[fg=white]::#[fg=gray]#(hostname -s)#[fg=white]::"
-      set -g status-right "#[fg=Cyan]#S #[fg=white]%a %d %b %R"
+      set -g status-right "#(~/dotfiles/scripts/claude-status --tmux-status) #[fg=Cyan]#S"
 
-      # Auto rename
-      set -g automatic-rename off
+      # Claude agent status popup (prefix + a)
+      bind-key a display-popup -E -w 50 -h 20 "~/dotfiles/scripts/claude-status"
+
+      # Auto rename windows based on current command
+      set -g automatic-rename on
+      set -g automatic-rename-format '#{b:pane_current_path}'
 
       # Rename session to current dir
       bind-key S run-shell "tmux rename-session $(basename $(pwd))"
