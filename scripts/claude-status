@@ -16,7 +16,8 @@ NC='\033[0m' # No Color
 ICON_WORKING="⚡"
 ICON_ASKING="❓"
 ICON_IDLE="💤"
-ICON_AGENT="🤖"
+ICON_AGENT="🏭"
+ICON_VERIFYING="🔍"
 
 # Hook-based state directory
 STATE_DIR="$HOME/.claude/agent-state"
@@ -79,13 +80,22 @@ get_hook_state() {
 find_state_for_project() {
     local project="$1"
     local result="unknown|"
+    local max_age=300  # 5 minutes - ignore stale state files
 
     if [[ -d "$STATE_DIR" ]]; then
         for f in "$STATE_DIR"/*.json; do
             [[ -f "$f" ]] || continue
-            local proj state question
+            local proj state question mtime now age
             proj=$(jq -r '.project // empty' "$f" 2>/dev/null)
             if [[ "$proj" == "$project" ]]; then
+                # Check if state file is stale
+                mtime=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f" 2>/dev/null || echo 0)
+                now=$(date +%s)
+                age=$((now - mtime))
+                if [[ $age -gt $max_age ]]; then
+                    # State file is stale, skip and check next
+                    continue
+                fi
                 state=$(jq -r '.state // "unknown"' "$f" 2>/dev/null)
                 question=$(jq -r '.question // empty' "$f" 2>/dev/null)
                 result="${state}|${question}"
@@ -103,8 +113,9 @@ detect_pane_state() {
     local project="$4"
 
     # First, check hook-based state for this project
-    local hook_state hook_question
+    local hook_state hook_question old_ifs="$IFS"
     IFS='|' read -r hook_state hook_question <<< "$(find_state_for_project "$project")"
+    IFS="$old_ifs"
 
     if [[ "$hook_state" == "asking" ]]; then
         echo "asking|$hook_question"
@@ -115,17 +126,26 @@ detect_pane_state() {
     elif [[ "$hook_state" == "working" ]]; then
         echo "working|"
         return
+    elif [[ "$hook_state" == "verifying" ]]; then
+        echo "verifying|"
+        return
     fi
 
     # Fallback: heuristic-based detection from pane content
     local content
-    content=$(tmux capture-pane -t "${session}:${window}.${pane}" -p -S -5 2>/dev/null | tail -5)
+    content=$(tmux capture-pane -t "${session}:${window}.${pane}" -p -S -50 2>/dev/null)
 
-    # Check for asking patterns (AskUserQuestion, confirmations, etc.)
-    if echo "$content" | grep -qiE "(waiting for|select.*option|choice|y/n|yes/no|\[Y/n\]|\[y/N\])"; then
+    # Check if pane capture failed (dead pane)
+    if [[ -z "$content" ]]; then
+        echo "unknown|"
+        return
+    fi
+
+    # Check for asking patterns (permission prompts, questions, confirmations)
+    if echo "$content" | grep -qiE "(Do you want to proceed|waiting for|select.*option|choice|y/n|yes/no|\[Y/n\]|\[y/N\])"; then
         echo "asking|"
-    # Check for idle at prompt
-    elif echo "$content" | tail -1 | grep -qE "^[>❯$]|claude>"; then
+    # Check for idle at prompt (line starting with >)
+    elif echo "$content" | grep -q "^>"; then
         echo "idle|"
     else
         echo "working|"
@@ -142,6 +162,7 @@ format_status_line() {
     local working=0
     local asking=0
     local idle=0
+    local verifying=0
 
     while IFS='|' read -r pid tty cpu state; do
         [[ -z "$pid" ]] && continue
@@ -160,6 +181,7 @@ format_status_line() {
             working) working=$((working + 1)) ;;
             asking) asking=$((asking + 1)) ;;
             idle) idle=$((idle + 1)) ;;
+            verifying) verifying=$((verifying + 1)) ;;
         esac
     done < <(get_claude_processes)
 
@@ -168,6 +190,8 @@ format_status_line() {
         echo ""
     elif [[ $asking -gt 0 ]]; then
         echo "#[fg=yellow,bold]${ICON_AGENT}${total} ${ICON_ASKING}${asking}#[default]"
+    elif [[ $verifying -gt 0 ]]; then
+        echo "#[fg=magenta]${ICON_AGENT}${total} ${ICON_VERIFYING}${verifying}#[default]"
     elif [[ $working -gt 0 ]]; then
         echo "#[fg=green]${ICON_AGENT}${total} ${ICON_WORKING}${working}#[default]"
     else
@@ -213,6 +237,11 @@ format_full_status() {
                 icon="${ICON_IDLE}"
                 color="${BLUE}"
                 status="IDLE"
+                ;;
+            verifying)
+                icon="${ICON_VERIFYING}"
+                color='\033[0;35m'  # Magenta
+                status="VERIFYING"
                 ;;
             *)
                 icon="${ICON_WORKING}"
