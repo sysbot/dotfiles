@@ -70,6 +70,7 @@
       # Usage: darwin-rebuild switch --flake .#baon-zero
       darwinConfigurations."baon-zero" = darwin.lib.darwinSystem {
         inherit system;
+        specialArgs = { primaryUser = "baon"; };
         modules = [
           ./darwin.nix
           home-manager.darwinModules.home-manager

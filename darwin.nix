@@ -1,14 +1,17 @@
-{ pkgs, ... }:
+{ pkgs, config, lib, primaryUser ? "bao", ... }:
 
+let
+  homeDir = "/Users/${primaryUser}";
+in
 {
   # Primary user for user-specific settings
-  system.primaryUser = "bao";
+  system.primaryUser = primaryUser;
 
   # Nix configuration
   nix = {
     settings = {
       experimental-features = [ "nix-command" "flakes" ];
-      trusted-users = [ "root" "bao" ];
+      trusted-users = [ "root" primaryUser ];
       # Use remote builder for x86_64-linux builds
       builders-use-substitutes = true;
     };
@@ -18,8 +21,8 @@
     buildMachines = [
       {
         hostName = "192.168.12.60";  # infra1
-        sshUser = "bao";
-        sshKey = "/Users/bao/.ssh/id_ed25519";
+        sshUser = primaryUser;
+        sshKey = "${homeDir}/.ssh/id_ed25519";
         system = "x86_64-linux";
         maxJobs = 4;
         speedFactor = 2;
@@ -169,25 +172,26 @@
   };
 
   # Launchd services (user-level)
-  launchd.user.agents.nix-flake-update = {
-    serviceConfig = {
-      ProgramArguments = [
-        "/bin/sh"
-        "-c"
-        "cd /Users/bao/dotfiles && /etc/profiles/per-user/bao/bin/nix flake update && /run/current-system/sw/bin/darwin-rebuild switch --flake '.#macbook' 2>&1 | /usr/bin/logger -t nix-flake-update"
-      ];
-      StartCalendarInterval = [{ Weekday = 1; Hour = 9; Minute = 0; }];  # Monday 9am
-      StandardErrorPath = "/tmp/nix-flake-update.err";
-      StandardOutPath = "/tmp/nix-flake-update.out";
-    };
-  };
+  # Note: Disabled for non-primary machines - the flake config name varies
+  # launchd.user.agents.nix-flake-update = {
+  #   serviceConfig = {
+  #     ProgramArguments = [
+  #       "/bin/sh"
+  #       "-c"
+  #       "cd ${homeDir}/dotfiles && /etc/profiles/per-user/${primaryUser}/bin/nix flake update && /run/current-system/sw/bin/darwin-rebuild switch --flake '.#macbook' 2>&1 | /usr/bin/logger -t nix-flake-update"
+  #     ];
+  #     StartCalendarInterval = [{ Weekday = 1; Hour = 9; Minute = 0; }];  # Monday 9am
+  #     StandardErrorPath = "/tmp/nix-flake-update.err";
+  #     StandardOutPath = "/tmp/nix-flake-update.out";
+  #   };
+  # };
 
   # Activation scripts
   system.activationScripts.postActivation.text = ''
     # Symlink emacsclient for org-protocol.app
-    ln -sf /etc/profiles/per-user/bao/bin/emacsclient /opt/homebrew/bin/emacsclient
+    ln -sf /etc/profiles/per-user/${primaryUser}/bin/emacsclient /opt/homebrew/bin/emacsclient 2>/dev/null || true
     # Create Screenshots directory
-    mkdir -p /Users/bao/Screenshots
+    mkdir -p ${homeDir}/Screenshots
   '';
 
   # System state version
