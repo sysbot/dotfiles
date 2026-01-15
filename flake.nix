@@ -60,7 +60,11 @@
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
             home-manager.users.bao = import ./home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.extraSpecialArgs = {
+              inherit inputs;
+              username = "bao";
+              homeDirectory = "/Users/bao";
+            };
             users.users.bao.home = "/Users/bao";
           }
         ];
@@ -76,7 +80,10 @@
           home-manager.darwinModules.home-manager
           {
             # Disable nix-darwin nix management for Determinate Nix
+            # Determinate Nixd handles GC and optimization itself
             nix.enable = false;
+            nix.gc.automatic = false;
+            nix.optimise.automatic = false;
 
             nixpkgs.config.allowUnfree = true;
             nixpkgs.overlays = [ inputs.emacs-overlay.overlays.default ];
