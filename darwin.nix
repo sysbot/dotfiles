@@ -8,7 +8,11 @@ in
   system.primaryUser = primaryUser;
 
   # Nix configuration
+  # Note: When using Determinate Nix, set nix.enable = false via specialArgs
   nix = {
+    # Disable nix-darwin's nix management when using Determinate Nix
+    enable = lib.mkDefault true;
+
     settings = {
       experimental-features = [ "nix-command" "flakes" ];
       trusted-users = [ "root" primaryUser ];

@@ -75,6 +75,9 @@
           ./darwin.nix
           home-manager.darwinModules.home-manager
           {
+            # Disable nix-darwin nix management for Determinate Nix
+            nix.enable = false;
+
             nixpkgs.config.allowUnfree = true;
             nixpkgs.overlays = [ inputs.emacs-overlay.overlays.default ];
             home-manager.useGlobalPkgs = true;
