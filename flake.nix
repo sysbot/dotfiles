@@ -50,6 +50,7 @@
       # Usage: darwin-rebuild switch --flake .#macbook
       darwinConfigurations."macbook" = darwin.lib.darwinSystem {
         inherit system;
+        specialArgs = { primaryUser = "bao"; };
         modules = [
           ./darwin.nix
           home-manager.darwinModules.home-manager
@@ -78,12 +79,12 @@
         modules = [
           ./darwin.nix
           home-manager.darwinModules.home-manager
-          {
+          ({ lib, ... }: {
             # Disable nix-darwin nix management for Determinate Nix
             # Determinate Nixd handles GC and optimization itself
-            nix.enable = false;
-            nix.gc.automatic = false;
-            nix.optimise.automatic = false;
+            nix.enable = lib.mkForce false;
+            nix.gc.automatic = lib.mkForce false;
+            nix.optimise.automatic = lib.mkForce false;
 
             nixpkgs.config.allowUnfree = true;
             nixpkgs.overlays = [ inputs.emacs-overlay.overlays.default ];
@@ -97,7 +98,7 @@
               homeDirectory = "/Users/baon";
             };
             users.users.baon.home = "/Users/baon";
-          }
+          })
         ];
       };
 
