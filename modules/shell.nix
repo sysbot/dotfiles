@@ -28,8 +28,8 @@
       ll = "eza -la";
       la = "eza -a";
       lt = "eza --tree";
-      cat = "bat";
-      grep = "rg";
+      # cat = "bat";
+      # grep = "rg";
       find = "fd";
       cd = "z";
 

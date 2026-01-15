@@ -260,9 +260,6 @@ function brewup()
   brew update
   brew upgrade
   brew cleanup
-
-  # reinstall reattach-to-user-namespace for tmux support
-  brew reinstall reattach-to-user-namespace 2>/dev/null || true
 }
 
 function reinstall_mvim_ycm(){

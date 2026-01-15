@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username ? "bao", homeDirectory ? "/Users/bao", ... }:
 
 {
   imports = [
@@ -11,8 +11,7 @@
   ];
 
   home = {
-    username = "bao";
-    homeDirectory = "/Users/bao";
+    inherit username homeDirectory;
     stateVersion = "24.05";
   };
 

@@ -66,6 +66,30 @@
         ];
       };
 
+      # Remote Mac (baon-zero-3) with username "baon"
+      # Usage: darwin-rebuild switch --flake .#baon-zero
+      darwinConfigurations."baon-zero" = darwin.lib.darwinSystem {
+        inherit system;
+        modules = [
+          ./darwin.nix
+          home-manager.darwinModules.home-manager
+          {
+            nixpkgs.config.allowUnfree = true;
+            nixpkgs.overlays = [ inputs.emacs-overlay.overlays.default ];
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.baon = import ./home.nix;
+            home-manager.extraSpecialArgs = {
+              inherit inputs;
+              username = "baon";
+              homeDirectory = "/Users/baon";
+            };
+            users.users.baon.home = "/Users/baon";
+          }
+        ];
+      };
+
       # Development shell
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = with pkgs; [
